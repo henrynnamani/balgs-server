@@ -1,5 +1,6 @@
 package com.graey.Balgs.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,6 +26,7 @@ public class Cart {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonBackReference
     private List<CartItem> items = new ArrayList<>();
 
     private BigDecimal totalPrice;
