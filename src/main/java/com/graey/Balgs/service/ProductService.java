@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProductService {
@@ -73,7 +74,7 @@ public class ProductService {
 
     public ResponseEntity<ApiResponse<String>> removeProduct(String productId) {
         try {
-            Optional<Product> productExist = repo.findById(productId);
+            Optional<Product> productExist = repo.findById(UUID.fromString(productId));
 
             if (productExist.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -92,7 +93,7 @@ public class ProductService {
 
     public ResponseEntity<ApiResponse<Product>> updateProduct(String productId, UpdateProduct update, List<MultipartFile> images, MultipartFile video) {
         try {
-            Optional<Product> productExist = repo.findById(productId);
+            Optional<Product> productExist = repo.findById(UUID.fromString(productId));
 
             if(productExist.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ProductMessages.PRODUCT_NOTFOUND));
