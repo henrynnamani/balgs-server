@@ -131,7 +131,6 @@ public class RatingService {
         incrementBucket(summary, rating);
     }
 
-
     @Transactional
     private RatingSummary createEmptySummary(UUID vendorId) {
         Optional<RatingSummary> existing =

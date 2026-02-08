@@ -1,6 +1,7 @@
 package com.graey.Balgs.controller;
 
 import com.graey.Balgs.common.utils.ApiResponse;
+import com.graey.Balgs.dto.cart.CartAddOnDto;
 import com.graey.Balgs.dto.cart.CartDto;
 import com.graey.Balgs.dto.cart.CartResponse;
 import com.graey.Balgs.model.Cart;
@@ -35,6 +36,11 @@ public class CartController {
     @PostMapping("remove")
     public ResponseEntity<ApiResponse<Cart>> removeFromCart(@RequestBody CartDto cartDto) {
         return service.removeFromCart(cartDto.getUserId(), cartDto.getProductId());
+    }
+
+    @PostMapping("addon")
+    public ResponseEntity<ApiResponse<String>> attachAddOnProduct(@RequestBody CartAddOnDto cartAddOn) {
+        return service.attachAddOnProduct(cartAddOn);
     }
 
     @Operation(summary = "clear cart")
