@@ -29,5 +29,5 @@ public class Cart {
     @JsonBackReference
     private List<CartItem> items = new ArrayList<>();
 
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice = BigDecimal.ZERO;
 }

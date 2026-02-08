@@ -13,9 +13,10 @@ public class CartItemAddOn {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_item_id", nullable = false)
     private CartItem cartItem;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private AddOnProduct product;
 }
