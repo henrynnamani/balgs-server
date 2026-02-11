@@ -1,20 +1,17 @@
 package com.graey.Balgs.service;
 
 import com.graey.Balgs.common.exception.ResourceNotFoundException;
+import com.graey.Balgs.common.messages.CartItemMessages;
 import com.graey.Balgs.common.messages.CartMessages;
 import com.graey.Balgs.common.messages.ProductMessages;
 import com.graey.Balgs.common.messages.UserMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
+import com.graey.Balgs.dto.cart.CartAddOnDto;
 import com.graey.Balgs.dto.cart.CartDto;
 import com.graey.Balgs.dto.cart.CartItemResponse;
 import com.graey.Balgs.dto.cart.CartResponse;
-import com.graey.Balgs.model.Cart;
-import com.graey.Balgs.model.CartItem;
-import com.graey.Balgs.model.Product;
-import com.graey.Balgs.model.User;
-import com.graey.Balgs.repo.CartRepo;
-import com.graey.Balgs.repo.ProductRepo;
-import com.graey.Balgs.repo.UserRepo;
+import com.graey.Balgs.model.*;
+import com.graey.Balgs.repo.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +31,15 @@ public class CartService {
 
     @Autowired
     private ProductRepo productRepo;
+
+    @Autowired
+    private AddOnProductRepo addOnProductRepo;
+
+    @Autowired
+    private CartItemRepo cartItemRepo;
+
+    @Autowired
+    private CartItemAddOnRepo cartItemAddOnRepo;
 
     @Transactional
     public ResponseEntity<ApiResponse<CartResponse>> addToCart(CartDto cartDto) {
@@ -118,6 +124,25 @@ public class CartService {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(CartMessages.PRODUCT_REMOVED_SUCCESSFULLY, savedCart));
     }
 
+    public ResponseEntity<ApiResponse<String>> attachAddOnProduct(CartAddOnDto addonDto) {
+        CartItem cartItem = cartItemRepo.findById(addonDto.getCartItemId()).orElseThrow(
+                () -> new ResourceNotFoundException(CartItemMessages.CART_ITEM_NOTFOUND)
+        );
+
+        AddOnProduct addOnProduct = addOnProductRepo.findById(addonDto.getAddOnProductId())
+                .orElseThrow(() -> new ResourceNotFoundException(ProductMessages.PRODUCT_NOTFOUND));
+
+        CartItemAddOn addon = new CartItemAddOn();
+
+        addon.setCartItem(cartItem);
+        addon.setProduct(addOnProduct);
+
+        cartItemAddOnRepo.save(addon);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(CartItemMessages.ADDON_ADDED_TO_CART_ITEM)
+        );
+    }
 
     public Cart createCartForUser(UUID userId) {
         User user = userRepo.findById(userId)
