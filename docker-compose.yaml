@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: balgs_db
+    environment:
+      POSTGRES_USER: graey
+      POSTGRES_PASSWORD: falcon568
+      POSTGRES_DB: balgsDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
