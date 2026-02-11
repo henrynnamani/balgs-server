@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -19,6 +20,9 @@ public class CartItem {
     @JoinColumn(name = "cart_id", nullable = false)
     @JsonBackReference
     private Cart cart;
+
+    @OneToMany(mappedBy = "cartItem", orphanRemoval = true)
+    private List<CartItemAddOn> addons;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false, unique = true)
