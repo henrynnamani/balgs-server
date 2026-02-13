@@ -123,4 +123,30 @@ public class OrderService {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(OrderMessages.ORDER_PLACED_SUCCESSFULLY, orderResponse));
     }
+
+    public void completePayment(UUID orderId) {
+        Order order = repo.findById(orderId).orElseThrow(
+                () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
+        );
+
+        order.setStatus(OrderStatus.PAID);
+
+        repo.save(order);
+    }
+
+    public boolean isOrderPaymentCompleted(UUID orderId) {
+        Order order = repo.findById(orderId).orElseThrow(
+                () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
+        );
+
+        return order.getStatus() == OrderStatus.PAID;
+    }
+
+    public BigDecimal getOrderTotalAmount(UUID orderId) {
+        Order order = repo.findById(orderId).orElseThrow(
+                () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
+        );
+
+        return order.getTotalPrice();
+    }
 }
