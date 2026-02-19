@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -63,6 +64,8 @@ public class CartService {
         item.setPriceAtAdd(product.getPrice());
 
         cartExist.getItems().add(item);
+
+        cartExist.setLastUpdatedAt(LocalDateTime.now());
 
         cartExist.setTotalPrice(
                 cartExist.getItems().stream()

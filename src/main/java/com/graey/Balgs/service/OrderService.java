@@ -2,6 +2,7 @@ package com.graey.Balgs.service;
 
 import com.graey.Balgs.common.enums.OrderStatus;
 import com.graey.Balgs.common.exception.ResourceNotFoundException;
+import com.graey.Balgs.common.mapper.OrderMapper;
 import com.graey.Balgs.common.messages.CartMessages;
 import com.graey.Balgs.common.messages.OrderMessages;
 import com.graey.Balgs.common.messages.UserMessages;
@@ -16,13 +17,16 @@ import com.graey.Balgs.repo.OrderRepo;
 import com.graey.Balgs.repo.UserRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class OrderService {

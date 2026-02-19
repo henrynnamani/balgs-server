@@ -47,6 +47,9 @@ public class Product {
     @Column(nullable = true)
     private String videoUrl;
 
+    @ManyToOne
+    private Vendor vendor;
+
     @ElementCollection
     private List<String> imageUrls;
 }

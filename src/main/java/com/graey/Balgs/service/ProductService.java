@@ -1,11 +1,15 @@
 package com.graey.Balgs.service;
 
+import com.graey.Balgs.common.exception.ResourceNotFoundException;
 import com.graey.Balgs.common.messages.ProductMessages;
+import com.graey.Balgs.common.messages.VendorMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.product.CreateProduct;
 import com.graey.Balgs.dto.product.UpdateProduct;
 import com.graey.Balgs.model.Product;
+import com.graey.Balgs.model.Vendor;
 import com.graey.Balgs.repo.ProductRepo;
+import com.graey.Balgs.repo.VendorRepo;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,11 +30,18 @@ public class ProductService {
     private ProductRepo repo;
 
     @Autowired
+    private VendorRepo vendorRepo;
+
+    @Autowired
     private CloudinaryService cloudinaryService;
 
     public ResponseEntity<ApiResponse<Product>> createProduct(CreateProduct product, List<MultipartFile> images, MultipartFile video) throws IOException {
         List<String> imageUrls = new ArrayList<>();
         String videoUrl = null;
+
+        Vendor vendor = vendorRepo.findById(UUID.fromString(product.getVendorId())).orElseThrow(
+                () -> new ResourceNotFoundException(VendorMessages.VENDOR_NOTFOUND)
+        );
 
         for(MultipartFile image : images) {
             String url = cloudinaryService.uploadFile(image, "image");
@@ -49,6 +60,7 @@ public class ProductService {
         newProduct.setFaceIdPresent(product.getFaceIdPresent());
         newProduct.setTrueTonePresent(product.getTrueTonePresent());
         newProduct.setImageUrls(imageUrls);
+        newProduct.setVendor(vendor);
 
 
         if(video != null && !video.isEmpty()) {

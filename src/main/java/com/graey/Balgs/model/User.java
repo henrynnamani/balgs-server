@@ -1,6 +1,8 @@
 package com.graey.Balgs.model;
 
+import com.graey.Balgs.common.enums.Role;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.UUID;
@@ -8,6 +10,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "users")
+@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -20,4 +23,7 @@ public class User {
 
     @OneToOne
     private Cart cart;
+
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
 }

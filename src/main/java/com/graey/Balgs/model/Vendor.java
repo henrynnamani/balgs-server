@@ -38,6 +38,11 @@ public class Vendor {
     private String accountNumber;
     private String bankName;
 
+    private String subaccount;
+
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Product> products = new ArrayList<>();
+
     @CreationTimestamp
     private Instant createdAt;
 }

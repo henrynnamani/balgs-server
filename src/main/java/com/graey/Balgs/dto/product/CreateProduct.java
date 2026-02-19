@@ -22,6 +22,8 @@ public class CreateProduct {
     private Boolean faceIdPresent;
     private Boolean trueTonePresent;
 
+    private String vendorId;
+
     @Min(0)
     @Max(100)
     private Integer batteryHealth;
