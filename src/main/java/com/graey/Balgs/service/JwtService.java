@@ -38,12 +38,12 @@ public class JwtService {
     }
 
     // Generate token with just the user details
-    public String generateToken(User userDetails) {
+    public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap(), userDetails);
     }
 
     // Generate token with extra claims (roles, permissions, etc.)
-    public String generateToken(Map extraClaims, User userDetails) {
+    public String generateToken(Map extraClaims, UserDetails userDetails) {
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
