@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class AuthService {
 
         userRepo.save(user);
 
-        var token = jwtService.generateToken(user);
+        String token = jwtService.generateToken(user);
 
         return AuthResponse.builder()
                 .token(token)
@@ -47,21 +48,21 @@ public class AuthService {
     }
 
     public AuthResponse authenticate(AuthRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+        } catch (AuthenticationException e) {
+            System.out.println(e.getMessage());
+        }
 
-//        System.out.println("Authenticated: " + authentication.isAuthenticated());
-
-        var user = userRepo.findByUsername(request.getUsername())
+        User user = userRepo.findByUsername(request.getUsername())
                 .orElseThrow();
 
-        System.out.println(user);
-
-        var jwt = jwtService.generateToken(user);
+        String jwt = jwtService.generateToken(user);
 
         return AuthResponse.builder()
                 .token(jwt)
