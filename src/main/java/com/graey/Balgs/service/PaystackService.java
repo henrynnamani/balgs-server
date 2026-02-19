@@ -24,6 +24,9 @@ public class PaystackService implements PaymentGateway {
     @Autowired
     private PaystackConfig config;
 
+    @Autowired
+    private OrderService orderService;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     public boolean verifyPaystackSignature(String payload, String signature) {

@@ -29,9 +29,6 @@ public class PaymentController {
     private PaystackService paystackService;
 
     @Autowired
-    private OpayService opayService;
-
-    @Autowired
     private OrderService orderService;
 
     public PaymentGateway getGateway(PaymentProvider provider) {

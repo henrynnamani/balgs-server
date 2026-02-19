@@ -3,8 +3,10 @@ package com.graey.Balgs.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,4 +32,7 @@ public class Cart {
     private List<CartItem> items = new ArrayList<>();
 
     private BigDecimal totalPrice;
+
+    @UpdateTimestamp
+    private LocalDateTime lastUpdatedAt;
 }

@@ -10,7 +10,7 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class CreateUser {
+public class RegisterRequest {
     @NotNull
     private String email;
 
@@ -19,4 +19,6 @@ public class CreateUser {
 
     @NotNull
     private String password;
+
+    private String role;
 }
