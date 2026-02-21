@@ -6,4 +6,5 @@ public final class OrderMessages {
     public static final String ORDER_PLACED_SUCCESSFULLY = "Order successfully placed";
     public static final String ORDER_ALREADY_PLACED = "Order already placed and payment made";
     public static final String ORDER_NOT_FOUND = "Order not found";
+    public static final String ORDER_LIST = "list of orders";
 }
