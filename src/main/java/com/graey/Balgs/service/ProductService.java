@@ -1,17 +1,21 @@
 package com.graey.Balgs.service;
 
 import com.graey.Balgs.common.exception.ResourceNotFoundException;
+import com.graey.Balgs.common.mapper.ProductMapper;
 import com.graey.Balgs.common.messages.ProductMessages;
 import com.graey.Balgs.common.messages.VendorMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.product.CreateProduct;
+import com.graey.Balgs.dto.product.ProductResponse;
 import com.graey.Balgs.dto.product.UpdateProduct;
+import com.graey.Balgs.dto.vendor.VendorResponse;
 import com.graey.Balgs.model.Product;
 import com.graey.Balgs.model.Vendor;
 import com.graey.Balgs.repo.ProductRepo;
 import com.graey.Balgs.repo.VendorRepo;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,9 +37,12 @@ public class ProductService {
     private VendorRepo vendorRepo;
 
     @Autowired
+    private ProductMapper productMapper;
+
+    @Autowired
     private CloudinaryService cloudinaryService;
 
-    public ResponseEntity<ApiResponse<Product>> createProduct(CreateProduct product, List<MultipartFile> images, MultipartFile video) throws IOException {
+    public ProductResponse createProduct(CreateProduct product, List<MultipartFile> images, MultipartFile video) throws IOException {
         List<String> imageUrls = new ArrayList<>();
         String videoUrl = null;
 
@@ -69,46 +76,54 @@ public class ProductService {
         }
 
         Product savedProduct = repo.save(newProduct);
+        VendorResponse vendorResponse = new VendorResponse().builder()
+                .id(vendor.getId())
+                .userId(vendor.getUser().getId())
+                .location(vendor.getLocation())
+                .status(vendor.getStatus())
+                .verified(vendor.getVerified())
+                .phoneNumber(vendor.getPhoneNumber())
+                .stocksAvailable(vendor.getStocksAvailable())
+                .accountNumber(vendor.getAccountNumber())
+                .bankName(vendor.getBankName())
+                .build();
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(ProductMessages.PRODUCT_CREATED, savedProduct));
+        ProductResponse productResponse = new ProductResponse().builder()
+                .model(savedProduct.getModel())
+                .price(savedProduct.getPrice())
+                .batteryHealth(savedProduct.getBatteryHealth())
+                .color(savedProduct.getColor())
+                .condition(savedProduct.getCondition())
+                .ramSize(savedProduct.getRamSize())
+                .romSize(savedProduct.getRomSize())
+                .faceIdPresent(savedProduct.getFaceIdPresent())
+                .trueTonePresent(savedProduct.getTrueTonePresent())
+                .imageUrls(savedProduct.getImageUrls())
+                .vendor(vendorResponse)
+                .build();
+
+        return productResponse;
     }
 
-    public ResponseEntity<ApiResponse<List<Product>>> getProducts() {
-        try {
-            List<Product> products = repo.findAll();
-
-            return ResponseEntity.ok(ApiResponse.success(ProductMessages.PRODUCT_LIST, products));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error(e.getMessage()));
-        }
+    public Page<ProductResponse> getProducts(Pageable pageable) {
+        return repo.findAll(pageable).map(productMapper::toResponse);
     }
 
-    public ResponseEntity<ApiResponse<String>> removeProduct(String productId) {
-        try {
-            Optional<Product> productExist = repo.findById(UUID.fromString(productId));
+    public String removeProduct(String productId) {
+        Product product = repo.findById(UUID.fromString(productId))
+                .orElseThrow(() -> new ResourceNotFoundException(ProductMessages.PRODUCT_NOTFOUND));
 
-            if (productExist.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ApiResponse.error(ProductMessages.PRODUCT_NOTFOUND));
-            }
+        repo.delete(product);
 
-            Product product = productExist.get();
-
-            repo.delete(product);
-
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(ProductMessages.PRODUCT_DELETED));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(e.getMessage()));
-        }
+        return ProductMessages.PRODUCT_DELETED;
     }
 
-    public ResponseEntity<ApiResponse<Product>> updateProduct(String productId, UpdateProduct update, List<MultipartFile> images, MultipartFile video) {
+    public ProductResponse updateProduct(String productId, UpdateProduct update, List<MultipartFile> images, MultipartFile video) {
         try {
             Optional<Product> productExist = repo.findById(UUID.fromString(productId));
 
             if(productExist.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(ProductMessages.PRODUCT_NOTFOUND));
+                throw new ResourceNotFoundException(ProductMessages.PRODUCT_NOTFOUND);
             }
 
             Product product = productExist.get();
@@ -166,12 +181,35 @@ public class ProductService {
 
             Product updatedProduct = repo.save(product);
 
-            return ResponseEntity.ok(
-                    ApiResponse.success(
-                            ProductMessages.PRODUCT_UPDATED,
-                            updatedProduct
-                    )
-            );
+            Vendor vendor = updatedProduct.getVendor();
+
+            VendorResponse vendorResponse = new VendorResponse().builder()
+                    .id(vendor.getId())
+                    .userId(vendor.getUser().getId())
+                    .location(vendor.getLocation())
+                    .status(vendor.getStatus())
+                    .verified(vendor.getVerified())
+                    .phoneNumber(vendor.getPhoneNumber())
+                    .stocksAvailable(vendor.getStocksAvailable())
+                    .accountNumber(vendor.getAccountNumber())
+                    .bankName(vendor.getBankName())
+                    .build();
+
+            ProductResponse productResponse = new ProductResponse().builder()
+                    .model(updatedProduct.getModel())
+                    .price(updatedProduct.getPrice())
+                    .batteryHealth(updatedProduct.getBatteryHealth())
+                    .color(updatedProduct.getColor())
+                    .condition(updatedProduct.getCondition())
+                    .ramSize(updatedProduct.getRamSize())
+                    .romSize(updatedProduct.getRomSize())
+                    .faceIdPresent(updatedProduct.getFaceIdPresent())
+                    .trueTonePresent(updatedProduct.getTrueTonePresent())
+                    .imageUrls(updatedProduct.getImageUrls())
+                    .vendor(vendorResponse)
+                    .build();
+
+            return productResponse;
         } catch (RuntimeException | IOException e) {
             throw new RuntimeException(e);
         }

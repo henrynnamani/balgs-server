@@ -3,6 +3,7 @@ package com.graey.Balgs.dto.order;
 import com.graey.Balgs.model.Order;
 import com.graey.Balgs.model.Product;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,9 +15,10 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class OrderItemResponse {
     private UUID id;
-    private Product product;
+    private ProductResponse product;
     private UUID orderId;
     private BigDecimal priceAtPurchase;
     private List<OrderItemAddOnResponse> addons;

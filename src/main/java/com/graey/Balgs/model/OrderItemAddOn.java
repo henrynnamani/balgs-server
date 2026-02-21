@@ -17,7 +17,7 @@ public class OrderItemAddOn {
     @ManyToOne(fetch = FetchType.LAZY)
     private OrderItem orderItem;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private AddOnProduct product;
 
     private BigDecimal priceAtPurchase;

@@ -2,6 +2,7 @@ package com.graey.Balgs.dto.order;
 
 import com.graey.Balgs.common.enums.OrderStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,8 @@ import java.util.UUID;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OrderResponse {
     private UUID id;
     private UUID userId;
@@ -19,7 +22,4 @@ public class OrderResponse {
     private List<OrderItemResponse> items;
     private OrderStatus status;
     private LocalDateTime createdAt;
-
-    public OrderResponse(UUID id, UUID id1, BigDecimal totalPrice, List<OrderItemResponse> items, OrderStatus status, LocalDateTime createdAt) {
-    }
 }

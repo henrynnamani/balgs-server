@@ -1,6 +1,5 @@
 package com.graey.Balgs.dto.order;
 
-import com.graey.Balgs.model.AddOnProduct;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,9 +12,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OrderItemAddOnResponse {
+public class ProductResponse{
     private UUID id;
-    private UUID orderItemId;
-    private ProductResponse product;
-    private BigDecimal priceAtPurchase;
+    private String name;
+    private BigDecimal price;
 }

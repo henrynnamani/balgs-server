@@ -6,11 +6,7 @@ import com.graey.Balgs.common.mapper.OrderMapper;
 import com.graey.Balgs.common.messages.CartMessages;
 import com.graey.Balgs.common.messages.OrderMessages;
 import com.graey.Balgs.common.messages.UserMessages;
-import com.graey.Balgs.common.utils.ApiResponse;
-import com.graey.Balgs.dto.order.OrderItemAddOnResponse;
-import com.graey.Balgs.dto.order.OrderItemResponse;
-import com.graey.Balgs.dto.order.OrderRequest;
-import com.graey.Balgs.dto.order.OrderResponse;
+import com.graey.Balgs.dto.order.*;
 import com.graey.Balgs.model.*;
 import com.graey.Balgs.repo.CartRepo;
 import com.graey.Balgs.repo.OrderRepo;
@@ -18,11 +14,7 @@ import com.graey.Balgs.repo.UserRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -39,8 +31,11 @@ public class OrderService {
     @Autowired
     private CartRepo cartRepo;
 
+    @Autowired
+    private OrderMapper orderMapper;
+
     @Transactional
-    public ResponseEntity<ApiResponse<OrderResponse>> checkout(OrderRequest orderDto) {
+    public OrderResponse checkout(OrderRequest orderDto) {
         Cart cart = cartRepo.findByUserId(UUID.fromString(orderDto.userId()))
                 .orElseThrow(
                         () -> new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
@@ -101,8 +96,14 @@ public class OrderService {
                 .map(item -> {
                     OrderItemResponse orderItemResponse = new OrderItemResponse();
 
+                    ProductResponse product = new ProductResponse();
+
+                    product.setId(item.getProduct().getId());
+                    product.setName(item.getProduct().getModel());
+                    product.setPrice(item.getProduct().getPrice());
+
                     orderItemResponse.setId(item.getId());
-                    orderItemResponse.setProduct(item.getProduct());
+                    orderItemResponse.setProduct(product);
                     orderItemResponse.setPriceAtPurchase(item.getPriceAtPurchase());
                     orderItemResponse.setOrderId(savedOrder.getId());
 
@@ -110,8 +111,14 @@ public class OrderService {
                             .map(addon -> {
                                 OrderItemAddOnResponse addOnResponse = new OrderItemAddOnResponse();
 
+                                ProductResponse addOnProduct = new ProductResponse();
+
+                                addOnProduct.setId(addon.getProduct().getId());
+                                addOnProduct.setName(addon.getProduct().getName());
+                                addOnProduct.setPrice(addon.getProduct().getPrice());
+
                                 addOnResponse.setId(addon.getId());
-                                addOnResponse.setProduct(addon.getProduct());
+                                addOnResponse.setProduct(addOnProduct);
                                 addOnResponse.setOrderItemId(orderItemResponse.getId());
                                 addOnResponse.setPriceAtPurchase(addon.getPriceAtPurchase());
 
@@ -125,7 +132,7 @@ public class OrderService {
 
         orderResponse.setItems(orderItemResponses);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(OrderMessages.ORDER_PLACED_SUCCESSFULLY, orderResponse));
+        return orderResponse;
     }
 
     public void completePayment(UUID orderId) {
@@ -152,5 +159,9 @@ public class OrderService {
         );
 
         return order.getTotalPrice();
+    }
+
+    public Page<OrderResponse> getAllOrder(Pageable pageable) {
+        return repo.findAll(pageable).map(orderMapper::toResponse);
     }
 }
