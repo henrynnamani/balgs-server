@@ -9,6 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class webConfig implements WebMvcConfigurer {
 
     public void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer.addPathPrefix("/api", c -> c.isAnnotationPresent(RestController.class));
+        configurer.addPathPrefix("/api", c -> c.isAnnotationPresent(RestController.class) &&
+                c.getPackageName().startsWith("com.graey.Balgs"));
     }
 }

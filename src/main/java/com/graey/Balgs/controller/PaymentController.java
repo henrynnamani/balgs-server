@@ -11,6 +11,8 @@ import com.graey.Balgs.dto.payment.PaymentDto;
 import com.graey.Balgs.service.OpayService;
 import com.graey.Balgs.service.OrderService;
 import com.graey.Balgs.service.PaystackService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("payments")
+@Tag(name = "payment", description = "manage payment")
 public class PaymentController {
 
     @Autowired
@@ -41,6 +44,7 @@ public class PaymentController {
     }
 
     @PostMapping("initiate")
+    @Operation(summary = "initiate payment")
     public ResponseEntity<ApiResponse<Object>> initiatePayment(@RequestBody PaymentDto paymentDto) {
         PaymentGateway gateway = getGateway(paymentDto.provider());
 
@@ -58,6 +62,7 @@ public class PaymentController {
     }
 
     @PostMapping("/webhook/paystack")
+    @Operation(summary = "webhook")
     public ResponseEntity<String> handlePaystackWebhook(
             @RequestBody String payload,
             @RequestHeader("x-paystack-signature") String signature) {
