@@ -161,7 +161,7 @@ public class OrderService {
         return order.getTotalPrice();
     }
 
-    public Page<OrderResponse> getAllOrder(Pageable pageable) {
-        return repo.findAll(pageable).map(orderMapper::toResponse);
+    public Page<OrderResponse> getAllOrder(UUID userId, Pageable pageable) {
+        return repo.findByUserId(userId, pageable).map(orderMapper::toResponse);
     }
 }

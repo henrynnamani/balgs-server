@@ -5,6 +5,7 @@ import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.order.OrderRequest;
 import com.graey.Balgs.dto.order.OrderResponse;
 import com.graey.Balgs.model.Order;
+import com.graey.Balgs.model.User;
 import com.graey.Balgs.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,9 +18,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("orders")
@@ -39,16 +42,18 @@ public class OrderController {
     @GetMapping
     @Operation(summary = "get all order")
     public ResponseEntity<ApiResponse<Page<OrderResponse>>> getAllOrder(
+            @AuthenticationPrincipal User userDetail,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int limit,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "true") boolean ascending
     ) {
+        UUID userId =  userDetail.getId();
         Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, limit, sort);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(OrderMessages.ORDER_LIST,service
-                        .getAllOrder(pageable)));
+                        .getAllOrder(userId, pageable)));
     }
 }

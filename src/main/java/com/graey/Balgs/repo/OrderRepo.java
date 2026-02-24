@@ -13,9 +13,5 @@ import java.util.UUID;
 
 @Repository
 public interface OrderRepo extends JpaRepository<Order, UUID> {
-    @Query("SELECT o.id FROM Order o")
-    Page<UUID> findAllIds(Pageable pageable);
-
-    @Query("SELECT DISTINCT o FROM Order o LEFT JOIN FETCH o.items i LEFT JOIN FETCH i.addons WHERE o.id IN :ids")
-    List<Order> findWithItemsAndAddons(@Param("ids") List<UUID> ids);
+    Page<Order> findByUserId(UUID userId, Pageable pageable);
 }
