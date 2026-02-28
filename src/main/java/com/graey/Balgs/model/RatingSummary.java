@@ -1,29 +1,35 @@
 package com.graey.Balgs.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "rating_summary")
 public class RatingSummary {
     @Id
-    private UUID vendorId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    private long totalRatings;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Vendor vendor;
 
-    private long fiveStar;
-    private long fourStar;
-    private long threeStar;
-    private long twoStar;
-    private long oneStar;
+    @Column(nullable = false)
+    private long totalRatings = 0;
 
-    private double averageRating;
+    private long fiveStar = 0;
+    private long fourStar = 0;
+    private long threeStar = 0;
+    private long twoStar = 0;
+    private long oneStar = 0;
+
+    private double averageRating = 0.0;
 
     @Version
     private long version;

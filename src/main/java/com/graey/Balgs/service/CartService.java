@@ -43,9 +43,9 @@ public class CartService {
     private CartItemAddOnRepo cartItemAddOnRepo;
 
     @Transactional
-    public ResponseEntity<ApiResponse<CartResponse>> addToCart(CartDto cartDto) {
-        Cart cartExist = repo.findByUserId(UUID.fromString(cartDto.getUserId()))
-                .orElseGet(() -> createCartForUser(UUID.fromString(cartDto.getUserId())));
+    public ResponseEntity<ApiResponse<CartResponse>> addToCart(CartDto cartDto, UUID userId) {
+        Cart cartExist = repo.findByUserId(userId)
+                .orElseGet(() -> createCartForUser(userId));
 
         Product product = productRepo.findById(UUID.fromString(cartDto.getProductId())).orElseThrow(
                 () -> new ResourceNotFoundException(ProductMessages.PRODUCT_NOTFOUND)
@@ -105,9 +105,9 @@ public class CartService {
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse<Cart>> removeFromCart(String userId, String productId) {
+    public ResponseEntity<ApiResponse<Cart>> removeFromCart(String productId, UUID userId) {
 
-        Cart cart = repo.findByUserId(UUID.fromString(userId))
+        Cart cart = repo.findByUserId(userId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
                 );

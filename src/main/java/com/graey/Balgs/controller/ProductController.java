@@ -3,6 +3,7 @@ package com.graey.Balgs.controller;
 import com.graey.Balgs.common.messages.ProductMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.product.CreateProduct;
+import com.graey.Balgs.dto.product.ProductDetailResponse;
 import com.graey.Balgs.dto.product.ProductResponse;
 import com.graey.Balgs.dto.product.UpdateProduct;
 import com.graey.Balgs.model.Product;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "products", description = "product endpoints")
 @RestController
@@ -35,6 +37,12 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestPart CreateProduct product, @RequestParam(required = false) List<MultipartFile> images, @RequestParam(required = false) MultipartFile video) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(ProductMessages.PRODUCT_CREATED, service.createProduct(product, images, video)));
+    }
+
+    @Operation(summary = "get a product")
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ProductDetailResponse>> getProduct(@PathVariable("id") String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(ProductMessages.PRODUCT_DETAIL, service.getProduct(UUID.fromString(id))));
     }
 
     @Operation(summary = "get all products")

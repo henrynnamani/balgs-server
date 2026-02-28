@@ -12,10 +12,12 @@ import com.graey.Balgs.config.PaystackConfig;
 import com.graey.Balgs.dto.vendor.UpdateVendor;
 import com.graey.Balgs.dto.vendor.VendorDto;
 import com.graey.Balgs.dto.vendor.VendorResponse;
+import com.graey.Balgs.model.RatingSummary;
 import com.graey.Balgs.model.User;
 import com.graey.Balgs.model.Vendor;
 import com.graey.Balgs.repo.UserRepo;
 import com.graey.Balgs.repo.VendorRepo;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -37,24 +39,14 @@ public class VendorService {
     private PaystackConfig paystackConfig;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    
-    public ResponseEntity<ApiResponse<VendorResponse>> setupAccount(VendorDto vendorDto) {
-        User userExist = userRepo.findById(UUID.fromString(vendorDto.getUserId())).orElseThrow(
+
+    public ResponseEntity<ApiResponse<VendorResponse>> setupAccount(VendorDto vendorDto, UUID userId) {
+        User userExist = userRepo.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND)
         );
-        
-        Vendor vendor = new Vendor();
-        
-        vendor.setAccountNumber(vendorDto.getAccountNumber());
-        vendor.setBankName(vendorDto.getBankName());
-        vendor.setLocation(vendorDto.getLocation());
-        vendor.setPhoneNumber(vendorDto.getPhoneNumber());
-        vendor.setUser(userExist);
 
-        String subAccount = createSubaccount(vendor);
+        Vendor vendor = getVendor(vendorDto, userExist);
 
-        vendor.setSubaccount(subAccount);
-        
         Vendor savedVendor = repo.save(vendor);
 
         VendorResponse response = getResponse(savedVendor);
@@ -64,28 +56,21 @@ public class VendorService {
         );
     }
 
-    public String createSubaccount(Vendor vendor){
-            String url = paystackConfig.getBaseUrl() + "/subaccount";
+    private static @NonNull Vendor getVendor(VendorDto vendorDto, User userExist) {
+        RatingSummary ratingSummary = new RatingSummary();
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + paystackConfig.getSecretKey());
-            headers.setContentType(MediaType.APPLICATION_JSON);
+        Vendor vendor = new Vendor();
 
-            Map<String, Object> body = new HashMap<>();
-            body.put("business_name", vendor.getBankName());
-            body.put("settlement_bank", "999992"); // change to dynamic
-            body.put("account_number", vendor.getAccountNumber());
-            body.put("percentage_charge", VendorConstant.PERCENTAGE_CHARGE);
+        vendor.setBusinessName(vendorDto.getBusinessName());
+        vendor.setAccountNumber(vendorDto.getAccountNumber());
+        vendor.setBankName(vendorDto.getBankName());
+        vendor.setLocation(vendorDto.getLocation());
+        vendor.setPhoneNumber(vendorDto.getPhoneNumber());
+        vendor.setUser(userExist);
+        vendor.setRatingSummary(ratingSummary);
 
-            HttpEntity<Map<String, Object>> request =
-                    new HttpEntity<>(body, headers);
-
-            ResponseEntity<Map> response =
-                    restTemplate.postForEntity(url, request, Map.class);
-
-            Map data = (Map) response.getBody().get("data");
-
-            return (String) data.get("subaccount_code");
+        ratingSummary.setVendor(vendor);
+        return vendor;
     }
 
     public ResponseEntity<ApiResponse<VendorResponse>> modifyVendorStatus(UUID vendorId, VendorStatus status) {

@@ -18,6 +18,9 @@ public class Vendor {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(unique = true, nullable = true)
+    private String businessName;
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
@@ -38,10 +41,14 @@ public class Vendor {
     private String accountNumber;
     private String bankName;
 
-    private String subaccount;
-
     @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
+
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Rating> ratings = new ArrayList<>();
+
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
+    private RatingSummary ratingSummary;
 
     @CreationTimestamp
     private Instant createdAt;

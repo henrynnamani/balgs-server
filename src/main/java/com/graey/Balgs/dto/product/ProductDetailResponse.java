@@ -3,6 +3,7 @@ package com.graey.Balgs.dto.product;
 import com.graey.Balgs.common.enums.ProductCondition;
 import com.graey.Balgs.common.enums.RamSize;
 import com.graey.Balgs.common.enums.RomSize;
+import com.graey.Balgs.dto.vendor.VendorDetailResponse;
 import com.graey.Balgs.dto.vendor.VendorResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,10 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class ProductResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductDetailResponse {
     private UUID id;
     private String model;
     private BigDecimal price;
@@ -29,5 +30,5 @@ public class ProductResponse {
     private boolean faceIdPresent;
     private boolean trueTonePresent;
     private List<String> imageUrls;
-    private VendorResponse vendor;
+    private VendorDetailResponse vendor;
 }
