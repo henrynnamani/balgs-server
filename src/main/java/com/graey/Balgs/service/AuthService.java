@@ -4,6 +4,7 @@ import com.graey.Balgs.common.enums.Role;
 import com.graey.Balgs.dto.auths.AuthRequest;
 import com.graey.Balgs.dto.auths.AuthResponse;
 import com.graey.Balgs.dto.user.RegisterRequest;
+import com.graey.Balgs.dto.user.UserResponse;
 import com.graey.Balgs.model.User;
 import com.graey.Balgs.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class AuthService {
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
+                .phoneNumber(request.getPhoneNumber())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.valueOf(request.getRole()))
                 .build();
@@ -43,6 +45,14 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .token(token)
+                .user(
+                        UserResponse.builder()
+                                .id(user.getId())
+                                .username(user.getUsername())
+                                .email(user.getEmail())
+                                .phoneNumber(user.getPhoneNumber())
+                                .build()
+                )
                 .build();
     }
 
@@ -65,6 +75,14 @@ public class AuthService {
 
         return AuthResponse.builder()
                 .token(jwt)
+                .user(
+                        UserResponse.builder()
+                                .id(user.getId())
+                                .username(user.getUsername())
+                                .email(user.getEmail())
+                                .phoneNumber(user.getPhoneNumber())
+                                .build()
+                )
                 .build();
     }
 }

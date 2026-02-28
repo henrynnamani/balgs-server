@@ -5,12 +5,14 @@ import com.graey.Balgs.dto.cart.CartAddOnDto;
 import com.graey.Balgs.dto.cart.CartDto;
 import com.graey.Balgs.dto.cart.CartResponse;
 import com.graey.Balgs.model.Cart;
+import com.graey.Balgs.model.User;
 import com.graey.Balgs.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,14 +30,14 @@ public class CartController {
 
     @Operation(summary = "add to cart")
     @PostMapping("add")
-    public ResponseEntity<ApiResponse<CartResponse>> addToCart(@RequestBody CartDto cartDto) {
-        return service.addToCart(cartDto);
+    public ResponseEntity<ApiResponse<CartResponse>> addToCart(@RequestBody CartDto cartDto, @AuthenticationPrincipal User user) {
+        return service.addToCart(cartDto, user.getId());
     }
 
     @Operation(summary = "remove product from cart")
     @PostMapping("remove")
-    public ResponseEntity<ApiResponse<Cart>> removeFromCart(@RequestBody CartDto cartDto) {
-        return service.removeFromCart(cartDto.getUserId(), cartDto.getProductId());
+    public ResponseEntity<ApiResponse<Cart>> removeFromCart(@RequestBody CartDto cartDto, @AuthenticationPrincipal User user) {
+        return service.removeFromCart(cartDto.getProductId(), user.getId());
     }
 
     @PostMapping("addon")
@@ -45,7 +47,7 @@ public class CartController {
 
     @Operation(summary = "clear cart")
     @PostMapping("clear")
-    public ResponseEntity<ApiResponse<Cart>> clearCart(@RequestBody CartDto cartDto) {
-        return service.clearCart(UUID.fromString(cartDto.getUserId()));
+    public ResponseEntity<ApiResponse<Cart>> clearCart(@AuthenticationPrincipal User user) {
+        return service.clearCart(user.getId());
     }
 }

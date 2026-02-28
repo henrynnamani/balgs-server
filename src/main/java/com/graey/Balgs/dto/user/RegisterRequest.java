@@ -18,6 +18,9 @@ public class RegisterRequest {
     private String username;
 
     @NotNull
+    private String phoneNumber;
+
+    @NotNull
     private String password;
 
     private String role;

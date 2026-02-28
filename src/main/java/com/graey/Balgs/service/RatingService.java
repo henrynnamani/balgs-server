@@ -147,7 +147,7 @@ public class RatingService {
 
         RatingSummary summary = new RatingSummary();
 
-        summary.setVendorId(vendor.getId());
+        summary.setVendor(vendor);
         summary.setTotalRatings(0L);
         summary.setAverageRating(0.0);
 

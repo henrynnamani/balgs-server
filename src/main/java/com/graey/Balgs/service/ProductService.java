@@ -1,11 +1,13 @@
 package com.graey.Balgs.service;
 
 import com.graey.Balgs.common.exception.ResourceNotFoundException;
+import com.graey.Balgs.common.mapper.ProductDetailMapper;
 import com.graey.Balgs.common.mapper.ProductMapper;
 import com.graey.Balgs.common.messages.ProductMessages;
 import com.graey.Balgs.common.messages.VendorMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.product.CreateProduct;
+import com.graey.Balgs.dto.product.ProductDetailResponse;
 import com.graey.Balgs.dto.product.ProductResponse;
 import com.graey.Balgs.dto.product.UpdateProduct;
 import com.graey.Balgs.dto.vendor.VendorResponse;
@@ -38,6 +40,9 @@ public class ProductService {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private ProductDetailMapper productDetailMapper;
 
     @Autowired
     private CloudinaryService cloudinaryService;
@@ -107,6 +112,12 @@ public class ProductService {
 
     public Page<ProductResponse> getProducts(Pageable pageable) {
         return repo.findAll(pageable).map(productMapper::toResponse);
+    }
+
+    public ProductDetailResponse getProduct(UUID id) {
+        return repo.findById(id).map(productDetailMapper::toResponse).orElseThrow(
+                () -> new ResourceNotFoundException(ProductMessages.PRODUCT_NOTFOUND)
+        );
     }
 
     public String removeProduct(String productId) {

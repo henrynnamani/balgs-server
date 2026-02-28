@@ -5,12 +5,15 @@ import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.vendor.UpdateVendor;
 import com.graey.Balgs.dto.vendor.VendorDto;
 import com.graey.Balgs.dto.vendor.VendorResponse;
+import com.graey.Balgs.model.User;
+import com.graey.Balgs.service.BalgsUserService;
 import com.graey.Balgs.service.VendorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -26,8 +29,8 @@ public class VendorController {
 
     @Operation(summary = "setup vendor profile")
     @PostMapping
-    public ResponseEntity<ApiResponse<VendorResponse>> setupAccount(@RequestBody VendorDto vendorDto) {
-        return service.setupAccount(vendorDto);
+    public ResponseEntity<ApiResponse<VendorResponse>> setupAccount(@RequestBody VendorDto vendorDto, @AuthenticationPrincipal User user) {
+        return service.setupAccount(vendorDto, user.getId());
     }
 
     @Operation(summary = "update vendor profile")

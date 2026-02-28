@@ -1,6 +1,7 @@
 package com.graey.Balgs.dto.vendor;
 
 import com.graey.Balgs.common.enums.VendorStatus;
+import com.graey.Balgs.dto.product.ProductDetailResponse;
 import com.graey.Balgs.dto.product.ProductResponse;
 import com.graey.Balgs.dto.rating.RatingResponse;
 import com.graey.Balgs.dto.rating.RatingSummaryResponse;
@@ -15,9 +16,9 @@ import java.util.UUID;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class VendorResponse {
+@AllArgsConstructor
+public class VendorDetailResponse {
     private UUID id;
     private String businessName;
     private UUID userId;
@@ -28,4 +29,6 @@ public class VendorResponse {
     private Integer stocksAvailable;
     private String accountNumber;
     private String bankName;
+    private List<RatingResponse> ratings = new ArrayList<>();
+    private RatingSummaryResponse ratingSummary;
 }

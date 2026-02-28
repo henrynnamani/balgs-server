@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class VendorDto {
-    private String userId;
+    private String businessName;
     private String location;
     private String phoneNumber;
     private String accountNumber;

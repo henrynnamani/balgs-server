@@ -11,6 +11,7 @@ public class ProductMapper {
 
     public ProductResponse toResponse(Product product) {
         ProductResponse response = new ProductResponse();
+        response.setId(product.getId());
         response.setModel(product.getModel());
         response.setPrice(product.getPrice());
         response.setBatteryHealth(product.getBatteryHealth());
@@ -28,6 +29,7 @@ public class ProductMapper {
     private VendorResponse toVendorResponse(Vendor vendor) {
         VendorResponse response = new VendorResponse();
         response.setId(vendor.getId());
+        response.setBusinessName(vendor.getBusinessName());
         response.setUserId(vendor.getUser().getId());
         response.setLocation(vendor.getLocation());
         response.setStatus(vendor.getStatus());

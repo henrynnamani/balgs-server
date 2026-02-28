@@ -8,4 +8,5 @@ public final class ProductMessages {
     public static final String PRODUCT_NOTFOUND = "Product not found";
     public static final String PRODUCT_DELETED = "Product deleted successfully";
     public static final String PRODUCT_UPDATED = "Product updated successfully";
+    public static final String PRODUCT_DETAIL = "Product detail";
 }
