@@ -8,6 +8,7 @@ import com.graey.Balgs.common.messages.OrderMessages;
 import com.graey.Balgs.common.messages.PaymentMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.payment.PaymentDto;
+import com.graey.Balgs.service.KorapayService;
 import com.graey.Balgs.service.OpayService;
 import com.graey.Balgs.service.OrderService;
 import com.graey.Balgs.service.PaystackService;
@@ -32,12 +33,18 @@ public class PaymentController {
     private PaystackService paystackService;
 
     @Autowired
+    private KorapayService korapayService;
+
+    @Autowired
     private OrderService orderService;
 
     public PaymentGateway getGateway(PaymentProvider provider) {
         switch (provider) {
             case PAYSTACK ->  {
                 return paystackService;
+            }
+            case KORAPAY -> {
+                return korapayService;
             }
         }
         return null;

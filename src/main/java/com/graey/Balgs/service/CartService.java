@@ -6,10 +6,8 @@ import com.graey.Balgs.common.messages.CartMessages;
 import com.graey.Balgs.common.messages.ProductMessages;
 import com.graey.Balgs.common.messages.UserMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
-import com.graey.Balgs.dto.cart.CartAddOnDto;
-import com.graey.Balgs.dto.cart.CartDto;
-import com.graey.Balgs.dto.cart.CartItemResponse;
-import com.graey.Balgs.dto.cart.CartResponse;
+import com.graey.Balgs.dto.addon.AddOnProductResponse;
+import com.graey.Balgs.dto.cart.*;
 import com.graey.Balgs.model.*;
 import com.graey.Balgs.repo.*;
 import jakarta.transaction.Transactional;
@@ -20,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -42,8 +42,16 @@ public class CartService {
     @Autowired
     private CartItemAddOnRepo cartItemAddOnRepo;
 
+    public CartResponse cartList(UUID userId) {
+        Cart cart = repo.findByUserId(userId).orElseThrow(
+                () -> new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
+        );
+
+        return getCartResponse(cart);
+    }
+
     @Transactional
-    public ResponseEntity<ApiResponse<CartResponse>> addToCart(CartDto cartDto, UUID userId) {
+    public CartResponse addToCart(CartDto cartDto, UUID userId) {
         Cart cartExist = repo.findByUserId(userId)
                 .orElseGet(() -> createCartForUser(userId));
 
@@ -58,12 +66,12 @@ public class CartService {
             throw new IllegalStateException(CartMessages.PRODUCT_ALREADY_IN_CART);
         }
 
-        CartItem item = new CartItem();
-        item.setCart(cartExist);
-        item.setProduct(product);
-        item.setPriceAtAdd(product.getPrice());
+        CartItem cartItem = new CartItem();
+        cartItem.setCart(cartExist);
+        cartItem.setProduct(product);
+        cartItem.setPriceAtAdd(product.getPrice());
 
-        cartExist.getItems().add(item);
+        cartExist.getItems().add(cartItem);
 
         cartExist.setLastUpdatedAt(LocalDateTime.now());
 
@@ -73,24 +81,12 @@ public class CartService {
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
         );
 
-        Cart savedCart = repo.save(cartExist);
+        Cart cart = repo.save(cartExist);
 
-        CartResponse response = new CartResponse(
-                savedCart.getId(),
-                savedCart.getUser().getId(),
-                savedCart.getItems().stream()
-                        .map(i -> new CartItemResponse(
-                                i.getId(),
-                                i.getProduct().getId(),
-                                i.getPriceAtAdd()
-                        )).toList(),
-                cartExist.getTotalPrice()
-        );
-
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(CartMessages.PRODUCT_ADDED_SUCCESSFULLY, response));
+        return getCartResponse(cart);
     }
 
-    public ResponseEntity<ApiResponse<Cart>> clearCart(UUID userId) {
+    public CartResponse clearCart(UUID userId) {
         Cart cart = repo.findByUserId(userId).orElseThrow(
                 () -> new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
         );
@@ -101,11 +97,11 @@ public class CartService {
 
         Cart clearedCart = repo.save(cart);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(CartMessages.CART_CLEARED_SUCCESSFULLY, clearedCart));
+        return getCartResponse(cart);
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse<Cart>> removeFromCart(String productId, UUID userId) {
+    public CartResponse removeFromCart(String productId, UUID userId) {
 
         Cart cart = repo.findByUserId(userId)
                 .orElseThrow(() ->
@@ -124,7 +120,40 @@ public class CartService {
 
         Cart savedCart = repo.save(cart);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(CartMessages.PRODUCT_REMOVED_SUCCESSFULLY, savedCart));
+        return getCartResponse(cart);
+
+    }
+
+    private static CartResponse getCartResponse(Cart cart) {
+        return CartResponse.builder()
+                .id(cart.getId())
+                .totalPrice(cart.getTotalPrice())
+                .lastUpdatedAt(cart.getLastUpdatedAt())
+                .items(cart.getItems() == null ? new ArrayList<>() :
+                        cart.getItems().stream().map(item -> {
+                            List<AddOnProductResponse> addons = (item.getAddons() == null || item.getAddons().isEmpty())
+                                    ? new ArrayList<>()
+                                    : item.getAddons().stream().map(addon ->
+                                    AddOnProductResponse.builder()
+                                            .id(addon.getId())
+                                            .name(addon.getProduct().getName())
+                                            .price(addon.getProduct().getPrice())
+                                            .build()
+                            ).toList();
+
+                            return CartItemDetailResponse.builder()
+                                    .id(item.getId())
+                                    .name(item.getProduct().getModel())
+                                    .romSize(item.getProduct().getRomSize())
+                                    .color(item.getProduct().getColor())
+                                    .condition(item.getProduct().getCondition())
+                                    .price(item.getProduct().getPrice())
+                                    .imageUrl(item.getProduct().getImageUrls().getFirst())
+                                    .addons(addons)
+                                    .build();
+                        }).toList()
+                )
+                .build();
     }
 
     public ResponseEntity<ApiResponse<String>> attachAddOnProduct(CartAddOnDto addonDto) {
@@ -145,6 +174,12 @@ public class CartService {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.success(CartItemMessages.ADDON_ADDED_TO_CART_ITEM)
         );
+    }
+
+    public String removeAddOnProduct(UUID id) {
+       cartItemAddOnRepo.deleteById(id);
+
+       return CartItemMessages.CART_ITEM_REMOVED;
     }
 
     public Cart createCartForUser(UUID userId) {
