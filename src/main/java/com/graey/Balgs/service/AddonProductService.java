@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,7 +25,17 @@ public class AddonProductService {
     @Autowired
     private AddOnProductRepo repo;
 
-    public ResponseEntity<ApiResponse<AddOnProductResponse>> createAddOnProduct(AddOnProductDto addOnProduct, MultipartFile image) throws IOException {
+    public List<AddOnProductResponse> getAddons() {
+        return repo.findAll().stream().map(addon -> new AddOnProductResponse().builder()
+                    .id(addon.getId())
+                    .price(addon.getPrice())
+                    .name(addon.getName())
+                    .imageUrl(addon.getImageUrl())
+                    .build()
+        ).toList();
+    }
+
+    public AddOnProductResponse createAddOnProduct(AddOnProductDto addOnProduct, MultipartFile image) throws IOException {
         String imageUrl = null;
 
         AddOnProduct product = new AddOnProduct();
@@ -40,20 +51,18 @@ public class AddonProductService {
         AddOnProduct savedProduct = repo.save(product);
         AddOnProductResponse response = getResponse(savedProduct);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(AddOnProductMessages.ADDON_PRODUCT_ADDED_SUCCESSFULLY, response));
+        return response;
     }
 
-    public ResponseEntity<ApiResponse<String>> deleteAddOnProduct(UUID id) {
+    public void deleteAddOnProduct(UUID id) {
         AddOnProduct product = repo.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException(AddOnProductMessages.ADDON_PRODUCT_NOT_FOUND)
         );
 
         repo.delete(product);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(AddOnProductMessages.ADDON_PRODUCT_DELETED_SUCCESSFULLY));
     }
 
-    public ResponseEntity<ApiResponse<AddOnProductResponse>> updateAddOnProduct(UUID id, AddOnProductDto addOnProduct, MultipartFile image) throws IOException {
+    public AddOnProductResponse updateAddOnProduct(UUID id, AddOnProductDto addOnProduct, MultipartFile image) throws IOException {
         AddOnProduct product = repo.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException(AddOnProductMessages.ADDON_PRODUCT_UPDATED_SUCCESSFULLY)
         );
@@ -76,7 +85,7 @@ public class AddonProductService {
 
         AddOnProductResponse response = getResponse(savedProduct);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(AddOnProductMessages.ADDON_PRODUCT_UPDATED_SUCCESSFULLY, response));
+        return response;
     }
 
     private AddOnProductResponse getResponse(AddOnProduct product) {
@@ -85,7 +94,6 @@ public class AddonProductService {
         response.setId(product.getId());
         response.setName(product.getName());
         response.setPrice(product.getPrice());
-        response.setStock(product.getStock());
         response.setImageUrl(product.getImageUrl());
 
         return response;

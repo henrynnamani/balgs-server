@@ -9,4 +9,5 @@ public final class CartMessages {
     public static final String CART_NOTFOUND = "User has no cart";
     public static final String PRODUCT_REMOVED_SUCCESSFULLY = "Product removed successfully";
     public static final String CART_CLEARED_SUCCESSFULLY = "Product successfully cleared";
+    public static final String CART_lIST = "Cart list";
 }
