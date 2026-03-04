@@ -1,10 +1,7 @@
 package com.graey.Balgs.common.mapper;
 
 
-import com.graey.Balgs.dto.order.OrderItemAddOnResponse;
-import com.graey.Balgs.dto.order.OrderItemResponse;
-import com.graey.Balgs.dto.order.OrderResponse;
-import com.graey.Balgs.dto.order.ProductResponse;
+import com.graey.Balgs.dto.order.*;
 import com.graey.Balgs.model.Order;
 import com.graey.Balgs.model.OrderItem;
 import com.graey.Balgs.model.OrderItemAddOn;
@@ -36,10 +33,13 @@ public class OrderMapper {
                 .priceAtPurchase(orderItem.getPriceAtPurchase())
                 .purchaseTime(orderItem.getPurchaseDate())
                 .product(
-                        ProductResponse.builder()
+                        OrderProductSummary.builder()
                                 .id(orderItem.getProduct().getId())
                                 .name(orderItem.getProduct().getModel())
-                                .price(orderItem.getProduct().getPrice())
+                                .color(orderItem.getProduct().getColor())
+                                .romSize(orderItem.getProduct().getRomSize().name())
+                                .imageUrl(orderItem.getProduct().getImageUrls().getFirst())
+                                .condition(String.valueOf(orderItem.getProduct().getCondition()))
                                 .build()
                 )
                 .addons(

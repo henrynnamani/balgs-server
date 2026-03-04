@@ -5,7 +5,6 @@ import lombok.Data;
 
 public record PaymentDto(
         String orderId,
-        String email,
         PaymentProvider provider
 ) {
 }

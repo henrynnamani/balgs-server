@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductResponse{
+public class ProductResponse {
     private UUID id;
     private String name;
     private BigDecimal price;

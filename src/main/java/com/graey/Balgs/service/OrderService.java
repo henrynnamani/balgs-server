@@ -35,13 +35,13 @@ public class OrderService {
     private OrderMapper orderMapper;
 
     @Transactional
-    public OrderResponse checkout(OrderRequest orderDto) {
-        Cart cart = cartRepo.findByUserId(UUID.fromString(orderDto.userId()))
+    public OrderResponse    checkout(UUID userId) {
+        Cart cart = cartRepo.findByUserId(userId)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
                 );
 
-        User user = userRepo.findById(UUID.fromString(orderDto.userId()))
+        User user = userRepo.findById(userId)
                 .orElseThrow(
                         () -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND)
                 );
@@ -96,14 +96,16 @@ public class OrderService {
                 .map(item -> {
                     OrderItemResponse orderItemResponse = new OrderItemResponse();
 
-                    ProductResponse product = new ProductResponse();
-
-                    product.setId(item.getProduct().getId());
-                    product.setName(item.getProduct().getModel());
-                    product.setPrice(item.getProduct().getPrice());
-
                     orderItemResponse.setId(item.getId());
-                    orderItemResponse.setProduct(product);
+                    orderItemResponse.setProduct(OrderProductSummary.builder()
+                                    .id(item.getProduct().getId())
+                                    .name(item.getProduct().getModel())
+                                    .color(item.getProduct().getColor())
+                                    .romSize(item.getProduct().getRomSize().name())
+                                    .imageUrl(item.getProduct().getImageUrls().getFirst())
+                                    .condition(item.getProduct().getCondition().name())
+                            .build());
+
                     orderItemResponse.setPriceAtPurchase(item.getPriceAtPurchase());
                     orderItemResponse.setOrderId(savedOrder.getId());
 
