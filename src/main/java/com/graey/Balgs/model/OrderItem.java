@@ -18,7 +18,7 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)

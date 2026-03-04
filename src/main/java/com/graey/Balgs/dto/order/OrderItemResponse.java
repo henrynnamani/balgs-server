@@ -1,5 +1,7 @@
 package com.graey.Balgs.dto.order;
 
+import com.graey.Balgs.common.enums.ProductCondition;
+import com.graey.Balgs.common.enums.RomSize;
 import com.graey.Balgs.model.Order;
 import com.graey.Balgs.model.Product;
 import lombok.AllArgsConstructor;
@@ -18,7 +20,7 @@ import java.util.UUID;
 @Builder
 public class OrderItemResponse {
     private UUID id;
-    private ProductResponse product;
+    private OrderProductSummary product;
     private UUID orderId;
     private BigDecimal priceAtPurchase;
     private List<OrderItemAddOnResponse> addons;

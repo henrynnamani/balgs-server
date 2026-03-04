@@ -8,6 +8,7 @@ import com.graey.Balgs.common.messages.OrderMessages;
 import com.graey.Balgs.common.messages.PaymentMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.payment.PaymentDto;
+import com.graey.Balgs.model.User;
 import com.graey.Balgs.service.KorapayService;
 import com.graey.Balgs.service.OpayService;
 import com.graey.Balgs.service.OrderService;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -52,7 +54,7 @@ public class PaymentController {
 
     @PostMapping("initiate")
     @Operation(summary = "initiate payment")
-    public ResponseEntity<ApiResponse<Object>> initiatePayment(@RequestBody PaymentDto paymentDto) {
+    public ResponseEntity<ApiResponse<Object>> initiatePayment(@RequestBody PaymentDto paymentDto, @AuthenticationPrincipal User user) {
         PaymentGateway gateway = getGateway(paymentDto.provider());
 
         if(orderService.isOrderPaymentCompleted(UUID.fromString(paymentDto.orderId()))) {
@@ -61,7 +63,7 @@ public class PaymentController {
 
         BigDecimal amount = orderService.getOrderTotalAmount(UUID.fromString(paymentDto.orderId()));
 
-        Object response = gateway.initiate(UUID.fromString(paymentDto.orderId()), paymentDto.email(), amount);
+        Object response = gateway.initiate(UUID.fromString(paymentDto.orderId()), user.getEmail(), amount);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(PaymentMessages.PAYMENT_INITIATED_SUCCESSFULLY,
                 response
