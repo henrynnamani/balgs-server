@@ -1,5 +1,6 @@
 package com.graey.Balgs.dto.order;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.graey.Balgs.common.enums.ProductCondition;
 import com.graey.Balgs.common.enums.RomSize;
 import com.graey.Balgs.model.Order;
@@ -25,4 +26,5 @@ public class OrderItemResponse {
     private BigDecimal priceAtPurchase;
     private List<OrderItemAddOnResponse> addons;
     private LocalDateTime purchaseTime;
+    private String vendorName;
 }

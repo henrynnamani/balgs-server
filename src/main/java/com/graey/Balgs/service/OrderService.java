@@ -35,21 +35,30 @@ public class OrderService {
     private OrderMapper orderMapper;
 
     @Transactional
-    public OrderResponse    checkout(UUID userId) {
-        Cart cart = cartRepo.findByUserId(userId)
+    public OrderResponse checkout(User user, PlaceOrderRequest request) {
+        Cart cart = cartRepo.findByUserId(user.getId())
                 .orElseThrow(
                         () -> new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
                 );
 
-        User user = userRepo.findById(userId)
+        User existingUser = userRepo.findById(user.getId())
                 .orElseThrow(
                         () -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND)
                 );
 
         Order order = new Order();
 
-        order.setUser(user);
+        order.setUser(existingUser);
         order.setStatus(OrderStatus.PENDING);
+
+        order.setDeliveryAddress(DeliveryAddress.builder()
+                        .state(request.getDeliveryAddress().getState())
+                        .user(existingUser)
+                        .email(user.getEmail())
+                        .city(request.getDeliveryAddress().getCity())
+                        .streetAddress(request.getDeliveryAddress().getStreetAddress())
+                        .phoneNumber(user.getPhoneNumber())
+                .build());
 
         BigDecimal totalPrice = BigDecimal.ZERO;
 
@@ -137,12 +146,68 @@ public class OrderService {
         return orderResponse;
     }
 
+    public OrderDetailResponse getOrder(UUID id) {
+        OrderDetailResponse orderDetailResponse = new OrderDetailResponse();
+
+        Order order = repo.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
+        );
+
+        orderDetailResponse.setId(order.getId());
+        orderDetailResponse.setStatus(order.getStatus().name());
+        orderDetailResponse.setTotalPrice(order.getTotalPrice());
+        orderDetailResponse.setReference(String.valueOf(order.getId()));
+        orderDetailResponse.setDeliveryAddress(order.getDeliveryAddress());
+
+        List<OrderItemResponse> orderItemResponses = order.getItems().stream().map(orderItem -> {
+            OrderItemResponse orderItemResponse = new OrderItemResponse();
+
+            orderItemResponse.setId(orderItem.getId());
+            orderItemResponse.setOrderId(order.getId());
+            orderItemResponse.setProduct(
+                    OrderProductSummary.builder()
+                            .id(orderItem.getProduct().getId())
+                            .name(orderItem.getProduct().getModel())
+                            .color(orderItem.getProduct().getColor())
+                            .condition(orderItem.getProduct().getCondition().name())
+                            .imageUrl(orderItem.getProduct().getImageUrls().getFirst())
+                            .romSize(orderItem.getProduct().getRomSize().name())
+                            .build()
+            );
+            orderItemResponse.setPriceAtPurchase(orderItem.getPriceAtPurchase());
+            orderItemResponse.setVendorName(orderItem.getProduct().getVendor().getBusinessName());
+            orderItemResponse.setPurchaseTime(orderItem.getPurchaseDate());
+            orderItemResponse.setAddons(
+                    orderItem.getAddons().stream().map(addon ->
+                            OrderItemAddOnResponse.builder()
+                                    .id(addon.getId())
+                                    .orderItemId(orderItem.getId())
+                                    .product(
+                                            ProductResponse.builder()
+                                                    .id(addon.getProduct().getId())
+                                                    .name(addon.getProduct().getName())
+                                                    .price(addon.getProduct().getPrice())
+                                                    .build()
+                                    )
+                                    .priceAtPurchase(addon.getPriceAtPurchase())
+                                    .build()
+                    ).toList()
+            );
+
+            return orderItemResponse; // ← was missing
+        }).toList();
+
+        orderDetailResponse.setItems(orderItemResponses);
+
+        return orderDetailResponse;
+    }
+
     public void completePayment(UUID orderId) {
         Order order = repo.findById(orderId).orElseThrow(
                 () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
         );
 
-        order.setStatus(OrderStatus.PAID);
+        order.setStatus(OrderStatus.CONFIRMED);
 
         repo.save(order);
     }
@@ -152,7 +217,7 @@ public class OrderService {
                 () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
         );
 
-        return order.getStatus() == OrderStatus.PAID;
+        return order.getStatus() == OrderStatus.CONFIRMED;
     }
 
     public BigDecimal getOrderTotalAmount(UUID orderId) {

@@ -2,8 +2,10 @@ package com.graey.Balgs.controller;
 
 import com.graey.Balgs.common.messages.OrderMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
+import com.graey.Balgs.dto.order.OrderDetailResponse;
 import com.graey.Balgs.dto.order.OrderRequest;
 import com.graey.Balgs.dto.order.OrderResponse;
+import com.graey.Balgs.dto.order.PlaceOrderRequest;
 import com.graey.Balgs.model.Order;
 import com.graey.Balgs.model.User;
 import com.graey.Balgs.service.OrderService;
@@ -35,8 +37,14 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "place order")
-    public ResponseEntity<ApiResponse<OrderResponse>> checkout(@AuthenticationPrincipal User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(OrderMessages.ORDER_PLACED_SUCCESSFULLY, service.checkout(user.getId())));
+    public ResponseEntity<ApiResponse<OrderResponse>> checkout(@AuthenticationPrincipal User user, @RequestBody PlaceOrderRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(OrderMessages.ORDER_PLACED_SUCCESSFULLY, service.checkout(user, request)));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "get order detail")
+    public ResponseEntity<ApiResponse<OrderDetailResponse>> getOrderDetail(@PathVariable("id") String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(OrderMessages.ORDER_DETAIL, service.getOrder(UUID.fromString(id))));
     }
 
     @GetMapping
