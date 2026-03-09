@@ -20,5 +20,5 @@ public class OrderDetailResponse {
     private List<OrderItemResponse> items;
     private BigDecimal totalPrice;
     private String reference;
-    private DeliveryAddress deliveryAddress;
+    private DeliveryAddressResponse deliveryAddress;
 }

@@ -45,8 +45,7 @@ public class RatingService {
     private RatingSummaryRepo ratingSummaryRepo;
 
     @Transactional
-    public ResponseEntity<ApiResponse<String>> rateVendor(RateVendor rateVendor) {
-        UUID userId = UUID.fromString(rateVendor.getUserId());
+    public ResponseEntity<ApiResponse<String>> rateVendor(RateVendor rateVendor, User user) {
         UUID vendorId = UUID.fromString(rateVendor.getVendorId());
 
         if(rateVendor.getRating() < 1 || rateVendor.getRating() > 5)
@@ -55,13 +54,10 @@ public class RatingService {
         Vendor vendor = vendorRepo.findById(vendorId)
                 .orElseThrow(() -> new ResourceNotFoundException(VendorMessages.VENDOR_NOTFOUND));
 
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND));
-
         RatingSummary summary = ratingSummaryRepo.findById(vendorId)
                 .orElseGet(() -> createEmptySummary(UUID.fromString(rateVendor.getVendorId())));
 
-        repo.findByVendor_IdAndUser_Id(userId, vendorId)
+        repo.findByVendor_IdAndUser_Id(user.getId(), vendorId)
                 .ifPresentOrElse(
                         existing -> updateRating(existing, summary, rateVendor.getRating()),
                         () -> createRating(vendor, user, rateVendor.getRating(), rateVendor.getReview(), summary)

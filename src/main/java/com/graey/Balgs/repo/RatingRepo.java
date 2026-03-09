@@ -20,4 +20,6 @@ public interface RatingRepo extends JpaRepository<Rating, UUID> {
             GROUP BY r.rating
             """)
     List<Object[]> getRatingDistribution(UUID vendorId);
+
+    List<Rating> findByVendorId(UUID vendorId);
 }

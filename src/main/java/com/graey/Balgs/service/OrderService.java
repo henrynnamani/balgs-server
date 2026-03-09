@@ -51,14 +51,16 @@ public class OrderService {
         order.setUser(existingUser);
         order.setStatus(OrderStatus.PENDING);
 
-        order.setDeliveryAddress(DeliveryAddress.builder()
-                        .state(request.getDeliveryAddress().getState())
-                        .user(existingUser)
-                        .email(user.getEmail())
-                        .city(request.getDeliveryAddress().getCity())
-                        .streetAddress(request.getDeliveryAddress().getStreetAddress())
-                        .phoneNumber(user.getPhoneNumber())
-                .build());
+        DeliveryAddress deliveryAddress = new DeliveryAddress();
+
+        deliveryAddress.setCity(request.getDeliveryAddress().getCity());
+        deliveryAddress.setState(request.getDeliveryAddress().getState());
+        deliveryAddress.setEmail(user.getEmail());
+        deliveryAddress.setPhoneNumber(user.getPhoneNumber());
+        deliveryAddress.setStreetAddress(request.getDeliveryAddress().getStreetAddress());
+        deliveryAddress.setUser(existingUser);
+
+        order.setDeliveryAddress(deliveryAddress);
 
         BigDecimal totalPrice = BigDecimal.ZERO;
 
@@ -157,7 +159,13 @@ public class OrderService {
         orderDetailResponse.setStatus(order.getStatus().name());
         orderDetailResponse.setTotalPrice(order.getTotalPrice());
         orderDetailResponse.setReference(String.valueOf(order.getId()));
-        orderDetailResponse.setDeliveryAddress(order.getDeliveryAddress());
+
+        orderDetailResponse.setDeliveryAddress(DeliveryAddressResponse.builder()
+                        .phoneNumber(order.getDeliveryAddress().getPhoneNumber())
+                        .state(order.getDeliveryAddress().getState())
+                        .city(order.getDeliveryAddress().getCity())
+                        .streetAddress(order.getDeliveryAddress().getStreetAddress())
+                .build());
 
         List<OrderItemResponse> orderItemResponses = order.getItems().stream().map(orderItem -> {
             OrderItemResponse orderItemResponse = new OrderItemResponse();
@@ -176,6 +184,7 @@ public class OrderService {
             );
             orderItemResponse.setPriceAtPurchase(orderItem.getPriceAtPurchase());
             orderItemResponse.setVendorName(orderItem.getProduct().getVendor().getBusinessName());
+            orderItemResponse.setVendorId(orderItem.getProduct().getVendor().getId());
             orderItemResponse.setPurchaseTime(orderItem.getPurchaseDate());
             orderItemResponse.setAddons(
                     orderItem.getAddons().stream().map(addon ->
@@ -200,6 +209,18 @@ public class OrderService {
         orderDetailResponse.setItems(orderItemResponses);
 
         return orderDetailResponse;
+    }
+
+    public String updateStatus(UUID id, OrderStatus orderStatus) {
+        Order order = repo.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
+        );
+
+        order.setStatus(orderStatus);
+
+        repo.save(order);
+
+        return OrderMessages.ORDER_STATUS_UPDATED;
     }
 
     public void completePayment(UUID orderId) {

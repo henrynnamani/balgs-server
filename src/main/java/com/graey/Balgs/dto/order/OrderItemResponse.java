@@ -27,4 +27,5 @@ public class OrderItemResponse {
     private List<OrderItemAddOnResponse> addons;
     private LocalDateTime purchaseTime;
     private String vendorName;
+    private UUID vendorId;
 }
