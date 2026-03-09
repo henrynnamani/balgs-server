@@ -12,4 +12,6 @@ import java.util.UUID;
 
 @Repository
 public interface VendorRepo extends JpaRepository<Vendor, UUID> {
+    @Query("SELECT COUNT(v) FROM Vendor v WHERE v.status = com.graey.Balgs.common.enums.VendorStatus.APPROVED")
+    Long countActiveVendors();
 }
