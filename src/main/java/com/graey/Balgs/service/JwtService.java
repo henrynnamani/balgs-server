@@ -44,8 +44,11 @@ public class JwtService {
 
     // Generate token with extra claims (roles, permissions, etc.)
     public String generateToken(Map extraClaims, UserDetails userDetails) {
+        User user = (User) userDetails;
+
         return Jwts.builder()
                 .claims(extraClaims)
+                .claim("role", user.getRole().name())
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
