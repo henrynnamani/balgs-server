@@ -18,7 +18,7 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Vendor vendor;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -10,14 +10,20 @@ import com.graey.Balgs.model.Product;
 import com.graey.Balgs.model.Rating;
 import com.graey.Balgs.model.RatingSummary;
 import com.graey.Balgs.model.Vendor;
+import com.graey.Balgs.repo.RatingRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class ProductDetailMapper {
+
+    @Autowired
+    private RatingRepo ratingRepo;
 
     public ProductDetailResponse toResponse(Product product) {
         ProductDetailResponse response = new ProductDetailResponse();
@@ -37,9 +43,9 @@ public class ProductDetailMapper {
     }
 
     private VendorDetailResponse toVendorResponse(Vendor vendor) {
-        List<RatingResponse> ratings = vendor.getRatings() == null
-                ? new ArrayList<>()
-                : vendor.getRatings().stream()
+        List<Rating> vendorRatings = ratingRepo.findByVendorId(vendor.getId());
+
+        List<RatingResponse> ratings = vendorRatings.stream()
                 .map(this::toRatingResponse)
                 .collect(Collectors.toList());
 
@@ -64,6 +70,8 @@ public class ProductDetailMapper {
     private RatingResponse toRatingResponse(Rating rating) {
         UserResponse userResponse = UserResponse.builder()
                 .id(rating.getUser().getId())
+                .username(rating.getUser().getUsername())
+                .email(rating.getUser().getEmail())
                 .build();
 
         return RatingResponse.builder()

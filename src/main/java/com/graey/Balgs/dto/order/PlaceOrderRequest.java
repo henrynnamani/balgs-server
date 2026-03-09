@@ -9,5 +9,5 @@ import lombok.Data;
 public class PlaceOrderRequest {
     @NotNull(message = "Delivery address is required")
     @Valid
-    private DeliveryAddress deliveryAddress;
+    private DeliveryAddressDto deliveryAddress;
 }

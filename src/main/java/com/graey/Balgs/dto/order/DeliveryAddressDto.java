@@ -7,4 +7,6 @@ public class DeliveryAddressDto {
     private String state;
     private String city;
     private String streetAddress;
+    private String nearestLandmark;
 }
+

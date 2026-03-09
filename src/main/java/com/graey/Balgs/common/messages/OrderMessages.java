@@ -8,4 +8,5 @@ public final class OrderMessages {
     public static final String ORDER_NOT_FOUND = "Order not found";
     public static final String ORDER_LIST = "list of orders";
     public static final String ORDER_DETAIL = "order detail";
+    public static final String ORDER_STATUS_UPDATED = "order status updated";
 }

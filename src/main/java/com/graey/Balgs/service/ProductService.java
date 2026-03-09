@@ -15,6 +15,7 @@ import com.graey.Balgs.model.Product;
 import com.graey.Balgs.model.Vendor;
 import com.graey.Balgs.repo.ProductRepo;
 import com.graey.Balgs.repo.VendorRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -114,8 +115,9 @@ public class ProductService {
         return repo.findAll(pageable).map(productMapper::toResponse);
     }
 
+    @Transactional
     public ProductDetailResponse getProduct(UUID id) {
-        return repo.findById(id).map(productDetailMapper::toResponse).orElseThrow(
+        return repo.findByIdWithVendorDetails(id).map(productDetailMapper::toResponse).orElseThrow(
                 () -> new ResourceNotFoundException(ProductMessages.PRODUCT_NOTFOUND)
         );
     }
