@@ -19,6 +19,8 @@ import com.graey.Balgs.repo.UserRepo;
 import com.graey.Balgs.repo.VendorRepo;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -39,6 +41,10 @@ public class VendorService {
     private PaystackConfig paystackConfig;
 
     private final RestTemplate restTemplate = new RestTemplate();
+
+    public Page<VendorResponse> getAllVendor(Pageable pageable) {
+        return repo.findAll(pageable).map(VendorResponse::from);
+    }
 
     public ResponseEntity<ApiResponse<VendorResponse>> setupAccount(VendorDto vendorDto, UUID userId) {
         User userExist = userRepo.findById(userId).orElseThrow(

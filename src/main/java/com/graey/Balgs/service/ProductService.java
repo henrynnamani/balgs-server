@@ -112,7 +112,7 @@ public class ProductService {
     }
 
     public Page<ProductResponse> getProducts(Pageable pageable) {
-        return repo.findAll(pageable).map(productMapper::toResponse);
+        return repo.findAllByIsAvailableTrue(pageable).map(productMapper::toResponse);
     }
 
     @Transactional

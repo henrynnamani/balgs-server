@@ -10,6 +10,7 @@ import com.graey.Balgs.dto.order.*;
 import com.graey.Balgs.model.*;
 import com.graey.Balgs.repo.CartRepo;
 import com.graey.Balgs.repo.OrderRepo;
+import com.graey.Balgs.repo.ProductRepo;
 import com.graey.Balgs.repo.UserRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ import java.util.*;
 public class OrderService {
     @Autowired
     private OrderRepo repo;
+
+    @Autowired
+    private ProductRepo productRepo;
 
     @Autowired
     private UserRepo userRepo;
@@ -66,6 +70,8 @@ public class OrderService {
 
         for (CartItem item : cart.getItems()) {
             OrderItem orderItem = new OrderItem();
+
+            item.getProduct().setAvailable(false);
 
             orderItem.setOrder(order);
             orderItem.setProduct(item.getProduct());

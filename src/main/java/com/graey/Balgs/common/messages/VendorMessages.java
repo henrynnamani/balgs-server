@@ -12,6 +12,7 @@ public final class VendorMessages {
     public static final String VENDOR_VERIFIED = "Vendor verified successfully";
     public static final String VERIFICATION_REVOKED = "Vendor verification revoked";
     public static final String VENDOR_PROFILE_UPDATED = "Vendor profile updated successfully";
+    public static final String VENDOR_LIST = "List of vendors";
 
     public static String VENDOR_HAS_CURRENT_STATUS(VendorStatus status) {
         return "Vendor already has set status " + status;

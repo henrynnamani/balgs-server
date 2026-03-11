@@ -1,10 +1,14 @@
 package com.graey.Balgs.controller;
 
 import com.graey.Balgs.common.messages.AdminMessages;
+import com.graey.Balgs.common.messages.VendorMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.admin.dashboard.DashboardResponse;
+import com.graey.Balgs.dto.admin.orders.AdminOrderResponse;
 import com.graey.Balgs.dto.order.OrderResponse;
+import com.graey.Balgs.dto.vendor.VendorResponse;
 import com.graey.Balgs.service.AdminService;
+import com.graey.Balgs.service.VendorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,9 @@ public class AdminController {
     @Autowired
     private AdminService service;
 
+    @Autowired
+    private VendorService vendorService;
+
     @GetMapping("/dashboard")
     @Operation(summary = "Get admin dashboard data")
     public ResponseEntity<ApiResponse<DashboardResponse>> getDashboard() {
@@ -35,7 +42,7 @@ public class AdminController {
 
     @GetMapping("/orders")
     @Operation(summary = "get all orders")
-    public ResponseEntity<ApiResponse<Page<OrderResponse>>> getOrders(
+    public ResponseEntity<ApiResponse<Page<AdminOrderResponse>>> getOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int limit,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -45,5 +52,19 @@ public class AdminController {
         Pageable pageable = PageRequest.of(page, limit, sort);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(AdminMessages.ADMIN_FETCH_ORDERS, service.getAllOrder(pageable)));
+    }
+
+    @Operation(summary = "get all vendors")
+    @GetMapping("/vendors")
+    public ResponseEntity<ApiResponse<Page<VendorResponse>>> getVendors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "true") boolean ascending
+    ) {
+        Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, limit, sort);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(VendorMessages.VENDOR_LIST,vendorService.getAllVendor(pageable)));
     }
 }

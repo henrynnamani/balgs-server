@@ -37,6 +37,7 @@ public class ProductController {
     @Operation(summary = "create new product")
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestPart CreateProduct product, @RequestParam(required = false) List<MultipartFile> images, @RequestParam(required = false) MultipartFile video) throws IOException {
+        System.out.println("I am here");
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(ProductMessages.PRODUCT_CREATED, service.createProduct(product, images, video)));
     }
 
