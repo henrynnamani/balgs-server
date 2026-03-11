@@ -2,6 +2,8 @@ package com.graey.Balgs.service;
 
 import com.graey.Balgs.common.mapper.OrderMapper;
 import com.graey.Balgs.dto.admin.dashboard.*;
+import com.graey.Balgs.dto.admin.orders.AdminOrderResponse;
+import com.graey.Balgs.dto.admin.orders.AdminOrdersMapper;
 import com.graey.Balgs.dto.order.OrderResponse;
 import com.graey.Balgs.repo.OrderRepo;
 import com.graey.Balgs.repo.VendorRepo;
@@ -23,7 +25,7 @@ import java.util.stream.Collectors;
 public class AdminService {
 
     @Autowired
-    private OrderMapper orderMapper;
+    private AdminOrdersMapper adminOrdersMapper;
 
     @Autowired
     private VendorRepo vendorRepo;
@@ -31,8 +33,8 @@ public class AdminService {
     @Autowired
     private OrderRepo orderRepo;
 
-    public Page<OrderResponse> getAllOrder(Pageable pageable) {
-        return orderRepo.findAll(pageable).map(orderMapper::toResponse);
+    public Page<AdminOrderResponse> getAllOrder(Pageable pageable) {
+        return orderRepo.findAll(pageable).map(adminOrdersMapper::toResponse);
     }
 
     public DashboardResponse getDashboardData() {

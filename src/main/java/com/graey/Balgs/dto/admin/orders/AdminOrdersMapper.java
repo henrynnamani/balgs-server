@@ -1,4 +1,5 @@
-package com.graey.Balgs.common.mapper;
+package com.graey.Balgs.dto.admin.orders;
+
 import com.graey.Balgs.dto.order.*;
 import com.graey.Balgs.model.Order;
 import com.graey.Balgs.model.OrderItem;
@@ -6,28 +7,31 @@ import com.graey.Balgs.model.OrderItemAddOn;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OrderMapper {
-    public OrderResponse toResponse(Order order) {
-        return OrderResponse.builder()
+public class AdminOrdersMapper {
+    public AdminOrderResponse toResponse(Order order) {
+        return AdminOrderResponse.builder()
                 .id(order.getId())
-                .userId(order.getUser().getId())
+                .customer(order.getUser().getUsername())
+                .phoneNumber(order.getUser().getPhoneNumber())
                 .totalPrice(order.getTotalPrice())
                 .items(
                         order.getItems().stream()
                                 .map(this::toOrderItemResponse)
                                 .toList()
                 )
-                .status(order.getStatus())
+                .status(order.getStatus().name())
                 .createdAt(order.getCreatedAt())
                 .build();
     }
 
-    public OrderItemResponse toOrderItemResponse(OrderItem orderItem) {
-        return OrderItemResponse.builder()
+    public AdminOrderItemResponse toOrderItemResponse(OrderItem orderItem) {
+        return AdminOrderItemResponse.builder()
                 .id(orderItem.getId())
                 .orderId(orderItem.getOrder().getId())
                 .priceAtPurchase(orderItem.getPriceAtPurchase())
                 .purchaseTime(orderItem.getPurchaseDate())
+                .vendorName(orderItem.getProduct().getVendor().getBusinessName())
+                .vendorId(orderItem.getProduct().getVendor().getId())
                 .product(
                         OrderProductSummary.builder()
                                 .id(orderItem.getProduct().getId())

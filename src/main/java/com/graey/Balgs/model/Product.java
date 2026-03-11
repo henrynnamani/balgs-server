@@ -50,6 +50,9 @@ public class Product {
     @ManyToOne
     private Vendor vendor;
 
+    @Column(nullable = false)
+    private boolean isAvailable = true;
+
     @ElementCollection
     private List<String> imageUrls;
 }
