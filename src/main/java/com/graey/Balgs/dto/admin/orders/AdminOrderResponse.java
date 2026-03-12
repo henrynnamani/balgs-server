@@ -22,5 +22,5 @@ public class AdminOrderResponse {
     private String status;
     private LocalDateTime createdAt;
     private BigDecimal totalPrice;
-    private List<AdminOrderItemResponse> items;
+    private AdminOrderItemResponse item;
 }

@@ -31,7 +31,7 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "place order")
-    public ResponseEntity<ApiResponse<OrderResponse>> checkout(@AuthenticationPrincipal User user, @RequestBody PlaceOrderRequest request) {
+    public ResponseEntity<ApiResponse<String>> checkout(@AuthenticationPrincipal User user, @RequestBody PlaceOrderRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(OrderMessages.ORDER_PLACED_SUCCESSFULLY, service.checkout(user, request)));
     }
 

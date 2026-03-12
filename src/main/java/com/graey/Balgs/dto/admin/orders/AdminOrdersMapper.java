@@ -14,11 +14,7 @@ public class AdminOrdersMapper {
                 .customer(order.getUser().getUsername())
                 .phoneNumber(order.getUser().getPhoneNumber())
                 .totalPrice(order.getTotalPrice())
-                .items(
-                        order.getItems().stream()
-                                .map(this::toOrderItemResponse)
-                                .toList()
-                )
+                .item(toOrderItemResponse(order.getItem()))
                 .status(order.getStatus().name())
                 .createdAt(order.getCreatedAt())
                 .build();

@@ -19,7 +19,7 @@ public class OrderResponse {
     private UUID id;
     private UUID userId;
     private BigDecimal totalPrice;
-    private List<OrderItemResponse> items;
+    private OrderItemResponse item;
     private OrderStatus status;
     private LocalDateTime createdAt;
 }
