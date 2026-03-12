@@ -3,6 +3,9 @@ package com.graey.Balgs.controller;
 import com.graey.Balgs.common.enums.VendorStatus;
 import com.graey.Balgs.common.messages.VendorMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
+import com.graey.Balgs.dto.admin.orders.AdminOrderResponse;
+import com.graey.Balgs.dto.order.OrderResponse;
+import com.graey.Balgs.dto.vendor.DashboardData;
 import com.graey.Balgs.dto.vendor.UpdateVendor;
 import com.graey.Balgs.dto.vendor.VendorDto;
 import com.graey.Balgs.dto.vendor.VendorResponse;
@@ -31,6 +34,24 @@ public class VendorController {
 
     @Autowired
     private VendorService service;
+
+    @Operation(summary = "get dashboard data")
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<DashboardData>> getDashboardData(@AuthenticationPrincipal User user) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(VendorMessages.VENDOR_DASHBOARD_DATA, service.getDashboardData(user.getId())));
+    }
+
+    @Operation(summary = "get vendor orders")
+    @GetMapping("/orders")
+    public ResponseEntity<ApiResponse<Page<AdminOrderResponse>>> getVendorOrders(@AuthenticationPrincipal User user, @RequestParam(defaultValue = "0") int page,
+                                                                                 @RequestParam(defaultValue = "5") int limit,
+                                                                                 @RequestParam(defaultValue = "id") String sortBy,
+                                                                                 @RequestParam(defaultValue = "true") boolean ascending) {
+        Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, limit, sort);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(VendorMessages.VENDOR_ORDER_LIST, service.getVendorOrders(pageable, user)));
+    }
 
     @Operation(summary = "setup vendor profile")
     @PostMapping

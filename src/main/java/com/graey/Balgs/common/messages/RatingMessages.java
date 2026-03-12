@@ -6,4 +6,5 @@ public final class RatingMessages {
     public static final String RATING_OUT_OF_BOUND = "Rating must be 1-5";
     public static final String VENDOR_RATING_SUMMARY_FAILED = "Failed to create vendor rating summary";
     public static final String VENDOR_RATED_SUCCESSFULLY = "Vendor rated successfully";
+    public static final String VENDOR_RATING_SUMMARY_NOT_FOUND = "Vendor rating summary not found";
 }

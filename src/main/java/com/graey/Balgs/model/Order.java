@@ -24,8 +24,12 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<OrderItem> items = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "vendor_id")
+    private Vendor vendor;
+
+    @OneToOne(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
+    private OrderItem item;
 
     private BigDecimal totalPrice;
 

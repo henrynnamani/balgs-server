@@ -12,11 +12,7 @@ public class OrderMapper {
                 .id(order.getId())
                 .userId(order.getUser().getId())
                 .totalPrice(order.getTotalPrice())
-                .items(
-                        order.getItems().stream()
-                                .map(this::toOrderItemResponse)
-                                .toList()
-                )
+                .item(toOrderItemResponse(order.getItem()))
                 .status(order.getStatus())
                 .createdAt(order.getCreatedAt())
                 .build();
