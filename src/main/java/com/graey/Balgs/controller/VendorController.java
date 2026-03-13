@@ -1,15 +1,13 @@
 package com.graey.Balgs.controller;
 
+import com.graey.Balgs.common.enums.OrderStatus;
 import com.graey.Balgs.common.enums.VendorStatus;
 import com.graey.Balgs.common.messages.VendorMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
-import com.graey.Balgs.dto.admin.orders.AdminOrderResponse;
-import com.graey.Balgs.dto.order.OrderResponse;
-import com.graey.Balgs.dto.vendor.DashboardData;
-import com.graey.Balgs.dto.vendor.UpdateVendor;
-import com.graey.Balgs.dto.vendor.VendorDto;
-import com.graey.Balgs.dto.vendor.VendorResponse;
+import com.graey.Balgs.dto.order.UpdateOrderStatusRequest;
+import com.graey.Balgs.dto.vendor.*;
 import com.graey.Balgs.model.User;
+import com.graey.Balgs.service.OrderService;
 import com.graey.Balgs.service.VendorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,6 +33,9 @@ public class VendorController {
     @Autowired
     private VendorService service;
 
+    @Autowired
+    private OrderService orderService;
+
     @Operation(summary = "get dashboard data")
     @GetMapping("/dashboard")
     public ResponseEntity<ApiResponse<DashboardData>> getDashboardData(@AuthenticationPrincipal User user) {
@@ -43,10 +44,10 @@ public class VendorController {
 
     @Operation(summary = "get vendor orders")
     @GetMapping("/orders")
-    public ResponseEntity<ApiResponse<Page<AdminOrderResponse>>> getVendorOrders(@AuthenticationPrincipal User user, @RequestParam(defaultValue = "0") int page,
-                                                                                 @RequestParam(defaultValue = "5") int limit,
-                                                                                 @RequestParam(defaultValue = "id") String sortBy,
-                                                                                 @RequestParam(defaultValue = "true") boolean ascending) {
+    public ResponseEntity<ApiResponse<Page<VendorOrdersResponse>>> getVendorOrders(@AuthenticationPrincipal User user, @RequestParam(defaultValue = "0") int page,
+                                                                                   @RequestParam(defaultValue = "5") int limit,
+                                                                                   @RequestParam(defaultValue = "id") String sortBy,
+                                                                                   @RequestParam(defaultValue = "true") boolean ascending) {
         Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, limit, sort);
 
@@ -81,5 +82,16 @@ public class VendorController {
     @PutMapping("/{vendorId}/toggle-verification")
     public ResponseEntity<ApiResponse<VendorResponse>> toggleVerification(@PathVariable("vendorId") String id) {
         return service.toggleVerification(UUID.fromString(id));
+    }
+
+    @PutMapping("/orders/{id}/status")
+    @Operation(summary = "update order status")
+    public ResponseEntity<ApiResponse<String>> updateOrderStatus(@PathVariable("id") String orderId, @RequestBody UpdateOrderStatusRequest request) {
+        if (request.status() == OrderStatus.DELIVERED) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(ApiResponse.error("Only the buyer can confirm delivery"));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(orderService.updateStatus(UUID.fromString(orderId), request.status())));
     }
 }

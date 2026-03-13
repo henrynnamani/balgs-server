@@ -1,7 +1,5 @@
 package com.graey.Balgs.service;
 
-import com.cloudinary.Api;
-import com.graey.Balgs.common.constant.VendorConstant;
 import com.graey.Balgs.common.enums.OrderStatus;
 import com.graey.Balgs.common.enums.VendorStatus;
 import com.graey.Balgs.common.exception.ResourceBadRequestException;
@@ -12,14 +10,7 @@ import com.graey.Balgs.common.messages.UserMessages;
 import com.graey.Balgs.common.messages.VendorMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.config.PaystackConfig;
-import com.graey.Balgs.dto.admin.orders.AdminOrderResponse;
-import com.graey.Balgs.dto.admin.orders.AdminOrdersMapper;
-import com.graey.Balgs.dto.order.OrderResponse;
-import com.graey.Balgs.dto.vendor.DashboardData;
-import com.graey.Balgs.dto.vendor.UpdateVendor;
-import com.graey.Balgs.dto.vendor.VendorDto;
-import com.graey.Balgs.dto.vendor.VendorResponse;
-import com.graey.Balgs.model.Rating;
+import com.graey.Balgs.dto.vendor.*;
 import com.graey.Balgs.model.RatingSummary;
 import com.graey.Balgs.model.User;
 import com.graey.Balgs.model.Vendor;
@@ -35,11 +26,8 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class VendorService {
@@ -56,7 +44,7 @@ public class VendorService {
     private OrderMapper orderMapper;
 
     @Autowired
-    private AdminOrdersMapper adminOrdersMapper;
+    private VendorOrdersMapper vendorOrdersMapper;
 
     @Autowired
     private RatingSummaryRepo ratingSummaryRepo;
@@ -100,9 +88,9 @@ public class VendorService {
 
         percentageChange = Math.round(percentageChange * 10.0) / 10.0;
 
-        List<AdminOrderResponse> pendingOrders = orderRepo.findAllPendingOrderByVendorId(vendor.getId())
+        List<VendorOrdersResponse> pendingOrders = orderRepo.findAllPendingOrderByVendorId(vendor.getId())
                 .stream()
-                .map(adminOrdersMapper::toResponse)
+                .map(vendorOrdersMapper::toResponse)
                 .toList();
 
         return DashboardData.builder()
@@ -117,12 +105,12 @@ public class VendorService {
                 .build();
     }
 
-    public Page<AdminOrderResponse> getVendorOrders(Pageable pageable, User user) {
+    public Page<VendorOrdersResponse> getVendorOrders(Pageable pageable, User user) {
         Vendor vendor = repo.findByUserId(user.getId()).orElseThrow(
                 () -> new ResourceNotFoundException(VendorMessages.VENDOR_NOTFOUND)
         );
 
-        return orderRepo.findAllVendorOrder(vendor.getId(), pageable).map(adminOrdersMapper::toResponse);
+        return orderRepo.findAllVendorOrder(vendor.getId(), pageable).map(vendorOrdersMapper::toResponse);
     }
 
     public Page<VendorResponse> getAllVendor(Pageable pageable) {

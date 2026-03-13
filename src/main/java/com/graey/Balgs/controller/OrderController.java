@@ -1,5 +1,6 @@
 package com.graey.Balgs.controller;
 
+import com.graey.Balgs.common.enums.OrderStatus;
 import com.graey.Balgs.common.messages.OrderMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.order.*;
@@ -59,10 +60,9 @@ public class OrderController {
                         .getAllOrder(userId, pageable)));
     }
 
-
-    @PutMapping("/{id}/status")
+    @PutMapping("{id}/confirm-delivery")
     @Operation(summary = "update order status")
-    public ResponseEntity<ApiResponse<String>> updateOrderStatus(@PathVariable("id") String orderId, @RequestBody UpdateOrderStatusRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(service.updateStatus(UUID.fromString(orderId), request.status())));
+    public ResponseEntity<ApiResponse<String>> updateOrderStatus(@PathVariable("id") String orderId) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(service.updateStatus(UUID.fromString(orderId), OrderStatus.DELIVERED)));
     }
 }

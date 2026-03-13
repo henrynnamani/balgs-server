@@ -22,5 +22,5 @@ public class DashboardData {
     private BigDecimal averageOrderPerTransaction;
     private double percentageChange;
     private double rating;
-    private List<AdminOrderResponse> pendingOrders;
+    private List<VendorOrdersResponse> pendingOrders;
 }

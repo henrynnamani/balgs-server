@@ -173,7 +173,7 @@ public class OrderService {
                 () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
         );
 
-        order.setStatus(OrderStatus.CONFIRMED);
+        order.setStatus(OrderStatus.PROCESSING);
 
         repo.save(order);
     }
@@ -183,7 +183,7 @@ public class OrderService {
                 () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
         );
 
-        return order.getStatus() == OrderStatus.CONFIRMED;
+        return order.getStatus() == OrderStatus.PROCESSING;
     }
 
     public BigDecimal getOrderTotalAmount(UUID orderId) {
