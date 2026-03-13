@@ -103,7 +103,6 @@ public interface OrderRepo extends JpaRepository<Order, UUID> {
     JOIN FETCH o.user
     WHERE o.vendor.id = :vendorId
     AND o.status != 'DELIVERED'
-    AND o.status != 'SHIPPED'
     ORDER BY o.createdAt DESC
 """)
     List<Order> findAllPendingOrderByVendorId(
@@ -112,7 +111,10 @@ public interface OrderRepo extends JpaRepository<Order, UUID> {
     @Query("""
     SELECT DISTINCT o
     FROM Order o
-    WHERE o.vendor.id = :vendorId
+    JOIN FETCH o.user
+    JOIN FETCH o.deliveryAddress
+    JOIN o.item i
+    WHERE i.product.vendor.id = :vendorId
     ORDER BY o.createdAt DESC
 """)
     Page<Order> findAllVendorOrder(
