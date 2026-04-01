@@ -17,7 +17,8 @@ public class CorsConfig {
 
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://phonevault.vercel.app"
+                "https://phonevault.vercel.app",
+                "https://h6vcwqv4-3000.uks1.devtunnels.ms"
         ));
 
         configuration.setAllowedMethods(List.of(

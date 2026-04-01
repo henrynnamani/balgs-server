@@ -56,17 +56,20 @@ public class PaystackService implements PaymentGateway {
     }
 
     @Override
-    public Object initiate(UUID reference, String email, BigDecimal amount) {
+    public Object initiate(String[] orderIds, String email, BigDecimal amount) {
         String url = config.getBaseUrl() + "/transaction/initialize";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(config.getSecretKey());
 
+        String reference = "TXN-" + UUID.randomUUID().toString().replace("-", "");
+
         Map<String, Object> body = Map.of(
                 "email", email,
                 "amount", amount.multiply(BigDecimal.valueOf(100)), // kobo
-                "reference", reference.toString()
+                "reference", reference,
+                "metadata", Map.of("orderIds", orderIds)
         );
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
