@@ -2,6 +2,7 @@ package com.graey.Balgs.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.graey.Balgs.common.enums.PaymentProvider;
 import com.graey.Balgs.common.interfaces.PaymentGateway;
 import com.graey.Balgs.common.messages.OrderMessages;
@@ -9,8 +10,6 @@ import com.graey.Balgs.common.messages.PaymentMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.payment.PaymentDto;
 import com.graey.Balgs.model.User;
-import com.graey.Balgs.service.KorapayService;
-import com.graey.Balgs.service.OpayService;
 import com.graey.Balgs.service.OrderService;
 import com.graey.Balgs.service.PaystackService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,18 +37,12 @@ public class PaymentController {
     private PaystackService paystackService;
 
     @Autowired
-    private KorapayService korapayService;
-
-    @Autowired
     private OrderService orderService;
 
     public PaymentGateway getGateway(PaymentProvider provider) {
         switch (provider) {
             case PAYSTACK ->  {
                 return paystackService;
-            }
-            case KORAPAY -> {
-                return korapayService;
             }
         }
         return null;
@@ -56,14 +52,19 @@ public class PaymentController {
     @Operation(summary = "initiate payment")
     public ResponseEntity<ApiResponse<Object>> initiatePayment(@RequestBody PaymentDto paymentDto, @AuthenticationPrincipal User user) {
         PaymentGateway gateway = getGateway(paymentDto.provider());
+        BigDecimal totalAmount = BigDecimal.ZERO;
 
-        if(orderService.isOrderPaymentCompleted(UUID.fromString(paymentDto.orderId()))) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(OrderMessages.ORDER_ALREADY_PLACED));
+        for (String orderId : paymentDto.orderIds()) {
+            if(orderService.isOrderPaymentCompleted(UUID.fromString(orderId))) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(OrderMessages.ORDER_ALREADY_PLACED));
+            }
+
+            totalAmount = totalAmount.add(orderService.getOrderTotalAmount(UUID.fromString(orderId)));
         }
 
-        BigDecimal amount = orderService.getOrderTotalAmount(UUID.fromString(paymentDto.orderId()));
 
-        Object response = gateway.initiate(UUID.fromString(paymentDto.orderId()), user.getEmail(), amount);
+
+        Object response = gateway.initiate(paymentDto.orderIds(), user.getEmail(), totalAmount);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(PaymentMessages.PAYMENT_INITIATED_SUCCESSFULLY,
                 response
@@ -85,9 +86,15 @@ public class PaymentController {
             JsonNode jsonNode = mapper.readTree(payload);
             String event = jsonNode.get("event").asText();
 
-            if ("charge.success".equals(event)) {
-                String reference = jsonNode.get("data").get("reference").asText();
-                orderService.completePayment(UUID.fromString(reference));
+            List<String> orderIds = new ArrayList<>();
+
+            jsonNode.get("data")
+                    .get("metadata")
+                    .get("orderIds")
+                    .forEach(node -> orderIds.add(node.asText()));
+
+            for (String orderId : orderIds) {
+                orderService.completePayment(UUID.fromString(orderId));
             }
 
             return ResponseEntity.ok("Webhook received");

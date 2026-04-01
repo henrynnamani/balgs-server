@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -32,7 +33,7 @@ public class OrderController {
 
     @PostMapping
     @Operation(summary = "place order")
-    public ResponseEntity<ApiResponse<String>> checkout(@AuthenticationPrincipal User user, @RequestBody PlaceOrderRequest request) {
+    public ResponseEntity<ApiResponse<List<String>>> checkout(@AuthenticationPrincipal User user, @RequestBody PlaceOrderRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(OrderMessages.ORDER_PLACED_SUCCESSFULLY, service.checkout(user, request)));
     }
 

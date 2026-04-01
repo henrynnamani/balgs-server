@@ -1,6 +1,8 @@
 package com.graey.Balgs.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.graey.Balgs.common.enums.OrderStatus;
+import com.graey.Balgs.common.exception.ProductUnavailableException;
 import com.graey.Balgs.common.exception.ResourceNotFoundException;
 import com.graey.Balgs.common.mapper.OrderMapper;
 import com.graey.Balgs.common.messages.CartMessages;
@@ -39,63 +41,141 @@ public class OrderService {
     private OrderMapper orderMapper;
 
     @Transactional
-    public String checkout(User user, PlaceOrderRequest request) {
+    public List<String> checkout(User user, PlaceOrderRequest request) {
         Cart cart = cartRepo.findByUserId(user.getId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
-                );
+                .orElseThrow(() -> new ResourceNotFoundException(CartMessages.CART_NOTFOUND));
 
         User existingUser = userRepo.findById(user.getId())
-                .orElseThrow(
-                        () -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND)
+                .orElseThrow(() -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND));
+
+        // Validate all items are still available before processing any
+        for (CartItem item : cart.getItems()) {
+            if (!item.getProduct().isAvailable()) {
+                throw new ProductUnavailableException(
+                        "Product no longer available: " + item.getProduct().getModel()
                 );
+            }
+        }
+
+        DeliveryAddress deliveryAddress = DeliveryAddress.builder()
+                .city(request.getDeliveryAddress().getCity())
+                .state(request.getDeliveryAddress().getState())
+                .email(existingUser.getEmail())
+                .phoneNumber(existingUser.getPhoneNumber())
+                .streetAddress(request.getDeliveryAddress().getStreetAddress())
+                .user(existingUser)
+                .build();
+
+        List<String> orderIds = new ArrayList<>();
 
         for (CartItem item : cart.getItems()) {
             Order order = new Order();
             order.setUser(existingUser);
             order.setStatus(OrderStatus.PENDING);
             order.setVendor(item.getProduct().getVendor());
+            order.setDeliveryAddress(deliveryAddress);
 
             item.getProduct().setAvailable(false);
 
-            order.setDeliveryAddress(DeliveryAddress.builder()
-                            .city(request.getDeliveryAddress().getCity())
-                            .state(request.getDeliveryAddress().getState())
-                            .email(user.getEmail())
-                            .phoneNumber(user.getPhoneNumber())
-                            .streetAddress(request.getDeliveryAddress().getStreetAddress())
-                            .user(existingUser)
-                    .build());
             OrderItem orderItem = OrderItem.builder()
                     .order(order)
                     .product(item.getProduct())
                     .priceAtPurchase(item.getPriceAtAdd())
                     .build();
 
-                List<OrderItemAddOn> addons = item.getAddons().stream().map(addon -> {
-                    OrderItemAddOn orderItemAddOn = new OrderItemAddOn();
-                    orderItemAddOn.setOrderItem(orderItem);
-                    orderItemAddOn.setProduct(addon.getProduct());
-                    orderItemAddOn.setPriceAtPurchase(addon.getProduct().getPrice());
-                    return orderItemAddOn;
-                }).toList();
+            List<OrderItemAddOn> addons = item.getAddons().stream().map(addon -> {
+                OrderItemAddOn orderItemAddOn = new OrderItemAddOn();
+                orderItemAddOn.setOrderItem(orderItem);
+                orderItemAddOn.setProduct(addon.getProduct());
+                orderItemAddOn.setPriceAtPurchase(addon.getProduct().getPrice());
+                return orderItemAddOn;
+            }).toList();
 
-                orderItem.setAddons(addons);
+            orderItem.setAddons(addons);
 
             BigDecimal addonTotal = addons.stream()
                     .map(OrderItemAddOn::getPriceAtPurchase)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            BigDecimal totalPrice = item.getPriceAtAdd().add(addonTotal);
-
             order.setItem(orderItem);
-            order.setTotalPrice(totalPrice);
+            order.setTotalPrice(item.getPriceAtAdd().add(addonTotal));
 
-            repo.save(order);
+            Order saved = repo.save(order);
+            orderIds.add(saved.getId().toString());
         }
 
-        return OrderMessages.ORDER_PLACED_SUCCESSFULLY;
+        cartRepo.delete(cart);
+        return orderIds;
     }
+
+//    @Transactional
+//    public List<String> checkout(User user, PlaceOrderRequest request) {
+//        Cart cart = cartRepo.findByUserId(user.getId())
+//                .orElseThrow(
+//                        () -> new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
+//                );
+//
+//        User existingUser = userRepo.findById(user.getId())
+//                .orElseThrow(
+//                        () -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND)
+//                );
+//
+//        List<String> orderIds = new ArrayList<>();
+//
+//            DeliveryAddress deliveryAddress = DeliveryAddress.builder()
+//                            .city(request.getDeliveryAddress().getCity())
+//                            .state(request.getDeliveryAddress().getState())
+//                            .email(user.getEmail())
+//                            .phoneNumber(user.getPhoneNumber())
+//                            .streetAddress(request.getDeliveryAddress().getStreetAddress())
+//                            .user(existingUser)
+//                    .build();
+//
+//        for (CartItem item : cart.getItems()) {
+//            Order order = new Order();
+//            order.setUser(existingUser);
+//            order.setStatus(OrderStatus.PENDING);
+//            order.setVendor(item.getProduct().getVendor());
+//
+//            order.setDeliveryAddress(deliveryAddress);
+//
+//            item.getProduct().setAvailable(false);
+//
+//            OrderItem orderItem = OrderItem.builder()
+//                    .order(order)
+//                    .product(item.getProduct())
+//                    .priceAtPurchase(item.getPriceAtAdd())
+//                    .build();
+//
+//                List<OrderItemAddOn> addons = item.getAddons().stream().map(addon -> {
+//                    OrderItemAddOn orderItemAddOn = new OrderItemAddOn();
+//                    orderItemAddOn.setOrderItem(orderItem);
+//                    orderItemAddOn.setProduct(addon.getProduct());
+//                    orderItemAddOn.setPriceAtPurchase(addon.getProduct().getPrice());
+//                    return orderItemAddOn;
+//                }).toList();
+//
+//                orderItem.setAddons(addons);
+//
+//            BigDecimal addonTotal = addons.stream()
+//                    .map(OrderItemAddOn::getPriceAtPurchase)
+//                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+//
+//            BigDecimal totalPrice = item.getPriceAtAdd().add(addonTotal);
+//
+//            order.setItem(orderItem);
+//            order.setTotalPrice(totalPrice);
+//
+//            Order newOrder = repo.save(order);
+//
+//            System.out.println(newOrder);
+//            orderIds.add(String.valueOf(newOrder.getId()));
+//        }
+//
+//        cartRepo.delete(cart);
+//
+//        return orderIds;
+//    }
 
     public OrderDetailResponse getOrder(UUID id) {
         OrderDetailResponse orderDetailResponse = new OrderDetailResponse();

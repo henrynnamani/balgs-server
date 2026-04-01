@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public interface PaymentGateway {
-    Object initiate(UUID reference, String email,  BigDecimal amount);
+    Object initiate(String[] orderIds, String email,  BigDecimal amount);
 
     boolean verify(String reference);
 }

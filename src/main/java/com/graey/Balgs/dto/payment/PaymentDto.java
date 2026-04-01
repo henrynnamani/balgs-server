@@ -4,7 +4,7 @@ import com.graey.Balgs.common.enums.PaymentProvider;
 import lombok.Data;
 
 public record PaymentDto(
-        String orderId,
+        String[] orderIds,
         PaymentProvider provider
 ) {
 }
