@@ -8,6 +8,7 @@ import com.graey.Balgs.dto.order.UpdateOrderStatusRequest;
 import com.graey.Balgs.dto.vendor.*;
 import com.graey.Balgs.model.User;
 import com.graey.Balgs.service.OrderService;
+import com.graey.Balgs.service.OrderSseService;
 import com.graey.Balgs.service.VendorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,6 +36,9 @@ public class VendorController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private OrderSseService sseService;
 
     @Operation(summary = "get dashboard data")
     @GetMapping("/dashboard")

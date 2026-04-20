@@ -18,6 +18,8 @@ public class CorsConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "https://phonevault.vercel.app",
+                "https://www.balgs.store",  // ✅ add this
+                "https://balgs.store",
                 "https://h6vcwqv4-3000.uks1.devtunnels.ms"
         ));
 

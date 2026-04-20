@@ -40,6 +40,9 @@ public class OrderService {
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private OrderSseService sseService;
+
     @Transactional
     public List<String> checkout(User user, PlaceOrderRequest request) {
         Cart cart = cartRepo.findByUserId(user.getId())
@@ -108,75 +111,6 @@ public class OrderService {
         return orderIds;
     }
 
-//    @Transactional
-//    public List<String> checkout(User user, PlaceOrderRequest request) {
-//        Cart cart = cartRepo.findByUserId(user.getId())
-//                .orElseThrow(
-//                        () -> new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
-//                );
-//
-//        User existingUser = userRepo.findById(user.getId())
-//                .orElseThrow(
-//                        () -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND)
-//                );
-//
-//        List<String> orderIds = new ArrayList<>();
-//
-//            DeliveryAddress deliveryAddress = DeliveryAddress.builder()
-//                            .city(request.getDeliveryAddress().getCity())
-//                            .state(request.getDeliveryAddress().getState())
-//                            .email(user.getEmail())
-//                            .phoneNumber(user.getPhoneNumber())
-//                            .streetAddress(request.getDeliveryAddress().getStreetAddress())
-//                            .user(existingUser)
-//                    .build();
-//
-//        for (CartItem item : cart.getItems()) {
-//            Order order = new Order();
-//            order.setUser(existingUser);
-//            order.setStatus(OrderStatus.PENDING);
-//            order.setVendor(item.getProduct().getVendor());
-//
-//            order.setDeliveryAddress(deliveryAddress);
-//
-//            item.getProduct().setAvailable(false);
-//
-//            OrderItem orderItem = OrderItem.builder()
-//                    .order(order)
-//                    .product(item.getProduct())
-//                    .priceAtPurchase(item.getPriceAtAdd())
-//                    .build();
-//
-//                List<OrderItemAddOn> addons = item.getAddons().stream().map(addon -> {
-//                    OrderItemAddOn orderItemAddOn = new OrderItemAddOn();
-//                    orderItemAddOn.setOrderItem(orderItem);
-//                    orderItemAddOn.setProduct(addon.getProduct());
-//                    orderItemAddOn.setPriceAtPurchase(addon.getProduct().getPrice());
-//                    return orderItemAddOn;
-//                }).toList();
-//
-//                orderItem.setAddons(addons);
-//
-//            BigDecimal addonTotal = addons.stream()
-//                    .map(OrderItemAddOn::getPriceAtPurchase)
-//                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-//
-//            BigDecimal totalPrice = item.getPriceAtAdd().add(addonTotal);
-//
-//            order.setItem(orderItem);
-//            order.setTotalPrice(totalPrice);
-//
-//            Order newOrder = repo.save(order);
-//
-//            System.out.println(newOrder);
-//            orderIds.add(String.valueOf(newOrder.getId()));
-//        }
-//
-//        cartRepo.delete(cart);
-//
-//        return orderIds;
-//    }
-
     public OrderDetailResponse getOrder(UUID id) {
         OrderDetailResponse orderDetailResponse = new OrderDetailResponse();
 
@@ -244,6 +178,8 @@ public class OrderService {
         order.setStatus(orderStatus);
 
         repo.save(order);
+
+        sseService.pushOrderUpdate(order.getId().toString(), order.getUser().getId().toString(), orderStatus);
 
         return OrderMessages.ORDER_STATUS_UPDATED;
     }
