@@ -4,8 +4,10 @@ import com.graey.Balgs.common.enums.OrderStatus;
 import com.graey.Balgs.common.messages.OrderMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.order.*;
+import com.graey.Balgs.model.Order;
 import com.graey.Balgs.model.User;
 import com.graey.Balgs.service.OrderService;
+import com.graey.Balgs.service.OrderSseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +17,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +34,9 @@ public class OrderController {
 
     @Autowired
     private OrderService service;
+
+    @Autowired
+    private OrderSseService sseService;
 
     @PostMapping
     @Operation(summary = "place order")
@@ -62,8 +69,31 @@ public class OrderController {
     }
 
     @PutMapping("{id}/confirm-delivery")
-    @Operation(summary = "update order status")
-    public ResponseEntity<ApiResponse<String>> updateOrderStatus(@PathVariable("id") String orderId) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(service.updateStatus(UUID.fromString(orderId), OrderStatus.DELIVERED)));
+    @Operation(summary = "Update order status")
+    public ResponseEntity<ApiResponse<String>> updateOrderStatus(
+            @PathVariable("id") String orderId, @AuthenticationPrincipal User user) {
+
+        String result = service.updateStatus(
+                UUID.fromString(orderId),
+                OrderStatus.DELIVERED
+        );
+
+        OrderDetailResponse order = service.getOrder(UUID.fromString(orderId));
+        sseService.pushOrderUpdate(orderId, user.getId().toString(), OrderStatus.DELIVERED);
+
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
+
+    @GetMapping(value = "/{orderId}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(summary = "Subscribe to real-time order status updates")
+    public SseEmitter streamOrderStatus(@PathVariable String orderId) {
+        return sseService.subscribe(orderId);
+    }
+
+    @GetMapping(value = "/stream/user/{userId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamUserOrders(@PathVariable String userId) {
+        return sseService.subscribeUser(userId);
+    }
+
+
 }
