@@ -3,11 +3,15 @@ package com.graey.Balgs.service;
 import com.graey.Balgs.common.enums.Role;
 import com.graey.Balgs.dto.auths.AuthRequest;
 import com.graey.Balgs.dto.auths.AuthResponse;
+import com.graey.Balgs.dto.auths.GoogleAuthRequest;
 import com.graey.Balgs.dto.user.RegisterRequest;
 import com.graey.Balgs.dto.user.UserResponse;
+import com.graey.Balgs.model.Cart;
 import com.graey.Balgs.model.User;
+import com.graey.Balgs.repo.CartRepo;
 import com.graey.Balgs.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,71 +22,41 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    @Autowired
-    private UserRepo userRepo;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepo userRepository;
+    private final JwtService jwtService;
+    private final CartRepo cartRepository;
 
-    @Autowired
-    private JwtService jwtService;
+    public AuthResponse googleSignIn(GoogleAuthRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseGet(() -> createUser(request));
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    public AuthResponse register(RegisterRequest request) {
-        User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.valueOf(request.getRole()))
-                .build();
-
-        userRepo.save(user);
-
-        String token = jwtService.generateToken(user);
+        // Link googleId if missing (first time Google login)
+        if (user.getGoogleId() == null) {
+            user.setGoogleId(request.getGoogleId());
+            user.setAvatar(request.getAvatar());
+            userRepository.save(user);
+        }
 
         return AuthResponse.builder()
-                .token(token)
-                .user(
-                        UserResponse.builder()
-                                .id(user.getId())
-                                .username(user.getUsername())
-                                .email(user.getEmail())
-                                .phoneNumber(user.getPhoneNumber())
-                                .build()
-                )
+                .token(jwtService.generateToken(user))
+                .userId(user.getId().toString())
+                .name(user.getFullName())
+                .email(user.getEmail())
+                .role(user.getRole().name())
                 .build();
     }
 
-    public AuthResponse authenticate(AuthRequest request) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
-                            request.getPassword()
-                    )
-            );
-        } catch (AuthenticationException e) {
-            System.out.println(e.getMessage());
-        }
+    private User createUser(GoogleAuthRequest request) {
+        Cart cart = cartRepository.save(new Cart());
 
-        User user = userRepo.findByUsername(request.getUsername())
-                .orElseThrow();
-
-        String jwt = jwtService.generateToken(user);
-
-        return AuthResponse.builder()
-                .token(jwt)
-                .user(
-                        UserResponse.builder()
-                                .id(user.getId())
-                                .username(user.getUsername())
-                                .email(user.getEmail())
-                                .phoneNumber(user.getPhoneNumber())
-                                .build()
-                )
-                .build();
+        return userRepository.save(User.builder()
+                .email(request.getEmail())
+                .fullName(request.getName())
+                .googleId(request.getGoogleId())
+                .avatar(request.getAvatar())
+                .role(Role.USER)
+                .cart(cart)
+                .build());
     }
 }

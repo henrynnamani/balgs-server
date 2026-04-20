@@ -21,46 +21,35 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false, unique = true)
     private String email;
-    private String username;
 
-    @Column(nullable = false)
+    private String fullName;
     private String phoneNumber;
-    private String password;
-
-    @OneToOne
-    private Cart cart;
+    private String googleId;
+    private String avatar;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private Role role = Role.USER;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Cart cart;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
+    @Override public String getPassword()               { return null; } // no password
+    @Override public String getUsername()               { return email; }
+    @Override public boolean isAccountNonExpired()      { return true; }
+    @Override public boolean isAccountNonLocked()       { return true; }
+    @Override public boolean isCredentialsNonExpired()  { return true; }
+    @Override public boolean isEnabled()                { return true; }
 }

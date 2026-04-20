@@ -4,6 +4,7 @@ import com.graey.Balgs.common.messages.AuthMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.auths.AuthRequest;
 import com.graey.Balgs.dto.auths.AuthResponse;
+import com.graey.Balgs.dto.auths.GoogleAuthRequest;
 import com.graey.Balgs.dto.user.RegisterRequest;
 import com.graey.Balgs.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,15 +22,11 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/register")
-    @Operation(summary = "register new user", security = {})
-    public ResponseEntity<ApiResponse<AuthResponse>> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(AuthMessages.REGISTRATION_SUCCESSFUL, authService.register(request)));
-    }
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<AuthResponse>> googleSignIn(
+            @RequestBody GoogleAuthRequest request) {
 
-    @PostMapping("/login")
-    @Operation(summary = "login as existing user", security = {})
-    public ResponseEntity<ApiResponse<AuthResponse>> authenticate(@RequestBody AuthRequest request) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(AuthMessages.LOGIN_SUCCESSFUL, authService.authenticate(request)));
+        AuthResponse response = authService.googleSignIn(request);
+        return ResponseEntity.ok(ApiResponse.success("Sign in successful", response));
     }
 }
