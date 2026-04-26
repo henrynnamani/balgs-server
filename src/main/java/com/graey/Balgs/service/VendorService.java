@@ -1,6 +1,7 @@
 package com.graey.Balgs.service;
 
 import com.graey.Balgs.common.enums.OrderStatus;
+import com.graey.Balgs.common.enums.Role;
 import com.graey.Balgs.common.enums.VendorStatus;
 import com.graey.Balgs.common.exception.ResourceBadRequestException;
 import com.graey.Balgs.common.exception.ResourceNotFoundException;
@@ -121,6 +122,8 @@ public class VendorService {
         User userExist = userRepo.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND)
         );
+
+        userExist.setRole(Role.VENDOR);
 
         Vendor vendor = getVendor(vendorDto, userExist);
 
