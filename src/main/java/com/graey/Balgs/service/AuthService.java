@@ -48,7 +48,7 @@ public class AuthService {
     }
 
     private User createUser(GoogleAuthRequest request) {
-        Cart cart = cartRepository.save(new Cart());
+//        Cart cart = cartRepository.save(new Cart());
 
         return userRepository.save(User.builder()
                 .email(request.getEmail())
@@ -56,7 +56,7 @@ public class AuthService {
                 .googleId(request.getGoogleId())
                 .avatar(request.getAvatar())
                 .role(Role.USER)
-                .cart(cart)
+//                .cart(cart)
                 .build());
     }
 }

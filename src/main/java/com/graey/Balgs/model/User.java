@@ -30,6 +30,8 @@ public class User implements UserDetails {
     private String email;
 
     private String fullName;
+
+    @Column(nullable = true)
     private String phoneNumber;
     private String googleId;
     private String avatar;
