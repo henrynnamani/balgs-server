@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/orders/*/stream").permitAll()
                         .requestMatchers("/api/orders/stream/user/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/vendors").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/vendors/**").hasRole("VENDOR")
                         .anyRequest().authenticated()
