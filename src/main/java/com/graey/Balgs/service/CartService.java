@@ -1,5 +1,7 @@
 package com.graey.Balgs.service;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import com.graey.Balgs.common.exception.ResourceNotFoundException;
 import com.graey.Balgs.common.messages.CartItemMessages;
 import com.graey.Balgs.common.messages.CartMessages;
@@ -62,8 +64,8 @@ public class CartService {
         boolean productAlreadyInCart = cartExist.getItems().stream()
                 .anyMatch(item -> item.getProduct().getId().equals(UUID.fromString(cartDto.getProductId())));
 
-        if(productAlreadyInCart) {
-            throw new IllegalStateException(CartMessages.PRODUCT_ALREADY_IN_CART);
+        if (productAlreadyInCart) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, CartMessages.PRODUCT_ALREADY_IN_CART); // ✅ 409
         }
 
         CartItem cartItem = new CartItem();
