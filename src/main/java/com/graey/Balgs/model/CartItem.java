@@ -21,11 +21,11 @@ public class CartItem {
     @JsonBackReference
     private Cart cart;
 
-    @OneToMany(mappedBy = "cartItem", orphanRemoval = true)
+    @OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItemAddOn> addons;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false, unique = true)
+    @JoinColumn(name = "product_id", nullable = false, unique = false)
     private Product product;
 
     private BigDecimal priceAtAdd;

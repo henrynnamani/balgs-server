@@ -2,6 +2,7 @@ package com.graey.Balgs.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -9,6 +10,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@Primary
 public class CorsConfig {
 
     @Bean
@@ -18,9 +20,8 @@ public class CorsConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "https://phonevault.vercel.app",
-                "https://www.balgs.store",  // ✅ add this
-                "https://balgs.store",
-                "https://h6vcwqv4-3000.uks1.devtunnels.ms"
+                "https://www.balgs.store/",
+                "https://balgs.store"
         ));
 
         configuration.setAllowedMethods(List.of(

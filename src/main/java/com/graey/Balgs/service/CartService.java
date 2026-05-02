@@ -108,8 +108,13 @@ public class CartService {
                         new ResourceNotFoundException(CartMessages.CART_NOTFOUND)
                 );
 
-        cart.getItems().removeIf(
-                item -> item.getProduct().getId().equals(UUID.fromString(productId))
+        cart.getItems().forEach(item -> {
+            UUID itemProductId = item.getProduct().getId();
+            UUID incomingId = UUID.fromString(productId);
+        });
+
+        boolean removed = cart.getItems().removeIf(
+                item -> item.getId().equals(UUID.fromString(productId))
         );
 
         cart.setTotalPrice(
@@ -120,8 +125,7 @@ public class CartService {
 
         Cart savedCart = repo.save(cart);
 
-        return getCartResponse(cart);
-
+        return getCartResponse(savedCart);
     }
 
     private static CartResponse getCartResponse(Cart cart) {

@@ -2,6 +2,8 @@ package com.graey.Balgs.repo;
 
 import com.graey.Balgs.model.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
