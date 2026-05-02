@@ -21,7 +21,7 @@ public class CartItem {
     @JsonBackReference
     private Cart cart;
 
-    @OneToMany(mappedBy = "cartItem", orphanRemoval = true)
+    @OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItemAddOn> addons;
 
     @ManyToOne
