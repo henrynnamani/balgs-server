@@ -1,8 +1,6 @@
 package com.graey.Balgs.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.graey.Balgs.common.enums.OrderStatus;
-import com.graey.Balgs.common.exception.ProductUnavailableException;
 import com.graey.Balgs.common.exception.ResourceNotFoundException;
 import com.graey.Balgs.common.mapper.OrderMapper;
 import com.graey.Balgs.common.messages.CartMessages;
@@ -16,6 +14,7 @@ import com.graey.Balgs.repo.ProductRepo;
 import com.graey.Balgs.repo.UserRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,6 +42,9 @@ public class OrderService {
     @Autowired
     private OrderSseService sseService;
 
+    @Autowired
+    private CartCleanUpService cartCleanupService;
+
     @Transactional
     public List<String> checkout(User user, PlaceOrderRequest request) {
         Cart cart = cartRepo.findByUserId(user.getId())
@@ -51,13 +53,8 @@ public class OrderService {
         User existingUser = userRepo.findById(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(UserMessages.USER_NOTFOUND));
 
-        // Validate all items are still available before processing any
-        for (CartItem item : cart.getItems()) {
-            if (!item.getProduct().isAvailable()) {
-                throw new ProductUnavailableException(
-                        "Product no longer available: " + item.getProduct().getModel()
-                );
-            }
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalStateException(CartMessages.CART_EMPTY);
         }
 
         DeliveryAddress deliveryAddress = DeliveryAddress.builder()
@@ -108,6 +105,7 @@ public class OrderService {
         }
 
         cartRepo.delete(cart);
+
         return orderIds;
     }
 
@@ -184,14 +182,14 @@ public class OrderService {
         return OrderMessages.ORDER_STATUS_UPDATED;
     }
 
-    public void completePayment(UUID orderId) {
+    public Order completePayment(UUID orderId) {
         Order order = repo.findById(orderId).orElseThrow(
                 () -> new ResourceNotFoundException(OrderMessages.ORDER_NOT_FOUND)
         );
 
         order.setStatus(OrderStatus.PROCESSING);
 
-        repo.save(order);
+        return repo.save(order);
     }
 
     public boolean isOrderPaymentCompleted(UUID orderId) {
