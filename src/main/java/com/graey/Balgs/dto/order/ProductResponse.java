@@ -14,6 +14,7 @@ import java.util.UUID;
 @Builder
 public class ProductResponse {
     private UUID id;
+    private String imageUrl;
     private String name;
     private BigDecimal price;
 }

@@ -57,6 +57,7 @@ public class VendorOrdersMapper {
                 .product(
                         ProductResponse.builder()
                                 .id(addon.getProduct().getId())
+                                .imageUrl(addon.getProduct().getImageUrl())
                                 .name(addon.getProduct().getName())
                                 .price(addon.getProduct().getPrice())
                                 .build()
