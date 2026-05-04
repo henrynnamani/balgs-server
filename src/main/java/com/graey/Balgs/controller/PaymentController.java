@@ -9,7 +9,9 @@ import com.graey.Balgs.common.messages.OrderMessages;
 import com.graey.Balgs.common.messages.PaymentMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.payment.PaymentDto;
+import com.graey.Balgs.model.Order;
 import com.graey.Balgs.model.User;
+import com.graey.Balgs.service.CartCleanUpService;
 import com.graey.Balgs.service.OrderService;
 import com.graey.Balgs.service.PaystackService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +40,9 @@ public class PaymentController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private CartCleanUpService cartCleanupService;
 
     public PaymentGateway getGateway(PaymentProvider provider) {
         switch (provider) {
@@ -93,9 +98,14 @@ public class PaymentController {
                     .get("orderIds")
                     .forEach(node -> orderIds.add(node.asText()));
 
+            List<UUID> purchasedProductIds = new ArrayList<>();
+
             for (String orderId : orderIds) {
-                orderService.completePayment(UUID.fromString(orderId));
+                Order order = orderService.completePayment(UUID.fromString(orderId));
+                purchasedProductIds.add(order.getItem().getProduct().getId());
             }
+
+            cartCleanupService.removeProductsFromAllCarts(purchasedProductIds, null);
 
             return ResponseEntity.ok("Webhook received");
 

@@ -13,4 +13,24 @@ import java.util.UUID;
 public interface CartRepo extends JpaRepository<Cart, UUID> {
     Optional<Cart> findByUserId(UUID userId);
     List<Cart> findByLastUpdatedAtBefore(LocalDateTime time);
+
+    @Query("""
+    SELECT DISTINCT c FROM Cart c
+    JOIN FETCH c.items i
+    JOIN FETCH i.product p
+    WHERE p.id IN :productIds
+    """)
+    List<Cart> findCartsContainingProducts(@Param("productIds") List<UUID> productIds);
+
+    @Query("""
+    SELECT DISTINCT c FROM Cart c
+    JOIN FETCH c.items i
+    JOIN FETCH i.product p
+    WHERE p.id IN :productIds
+    AND c.id != :excludeCartId
+    """)
+    List<Cart> findCartsContainingProductsExcluding(
+            @Param("productIds") List<UUID> productIds,
+            @Param("excludeCartId") UUID excludeCartId
+    );
 }
