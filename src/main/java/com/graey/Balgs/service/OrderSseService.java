@@ -102,9 +102,9 @@ public class OrderSseService {
     private String getStatusMessage(OrderStatus status) {
         return switch (status) {
             case PENDING -> "Your order has been received.";
-            case PROCESSING -> "";
+            case PROCESSING -> "We're processing your order and preparing it for shipment.";
             case SHIPPED -> "Your order is on its way!";
-            case DELIVERY_PENDING -> "";
+            case DELIVERY_PENDING -> "Your order is out for delivery and will arrive shortly.";
             case DELIVERED -> "Your order has been delivered. Enjoy! 🎉";
         };
     }
