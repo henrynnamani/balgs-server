@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
 @Entity
@@ -45,4 +46,20 @@ public class Order {
 
     @Version
     private Long version;
+
+    public String getItemsSummary() {
+        if (item == null) return "Unknown item";
+
+        String productName = item.getProduct().getModel();
+
+        if (item.getAddons().isEmpty()) {
+            return productName;
+        }
+
+        String addonNames = item.getAddons().stream()
+                .map(addon -> addon.getProduct().getName())
+                .collect(Collectors.joining(", "));
+
+        return productName + " + " + addonNames;
+    }
 }

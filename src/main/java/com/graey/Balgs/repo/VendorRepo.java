@@ -1,6 +1,7 @@
 package com.graey.Balgs.repo;
 
 
+import com.graey.Balgs.model.User;
 import com.graey.Balgs.model.Vendor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,8 @@ public interface VendorRepo extends JpaRepository<Vendor, UUID> {
     Long countActiveVendors();
 
     Optional<Vendor> findByUserId(UUID userId);
+
+    Optional<Vendor> findByUser_GoogleId(String googleId);
+
+    Optional<Vendor> findByUser(User user);
 }

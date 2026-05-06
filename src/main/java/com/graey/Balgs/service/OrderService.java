@@ -101,6 +101,7 @@ public class OrderService {
             order.setTotalPrice(item.getPriceAtAdd().add(addonTotal));
 
             Order saved = repo.save(order);
+
             orderIds.add(saved.getId().toString());
         }
 

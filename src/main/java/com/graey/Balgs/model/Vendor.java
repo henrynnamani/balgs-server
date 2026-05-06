@@ -37,6 +37,9 @@ public class Vendor {
     @Column(nullable = false)
     private String phoneNumber;
 
+    @Column(name = "fcm_token")
+    private String fcmToken;
+
     private Integer stocksAvailable = 0;
     private String accountNumber;
     private String bankName;

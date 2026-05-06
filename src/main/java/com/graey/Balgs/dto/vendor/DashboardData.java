@@ -9,12 +9,14 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class DashboardData {
+    private UUID vendorId;
     private String vendorName;
     private BigDecimal totalRevenue;
     private Long totalOrders;

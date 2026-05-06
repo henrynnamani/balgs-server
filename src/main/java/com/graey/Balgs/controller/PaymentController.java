@@ -14,9 +14,11 @@ import com.graey.Balgs.model.User;
 import com.graey.Balgs.service.CartCleanUpService;
 import com.graey.Balgs.service.OrderService;
 import com.graey.Balgs.service.PaystackService;
+import com.graey.Balgs.service.VendorNotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("payments")
 @Tag(name = "payment", description = "manage payment")
@@ -43,6 +46,9 @@ public class PaymentController {
 
     @Autowired
     private CartCleanUpService cartCleanupService;
+
+    @Autowired
+    private VendorNotificationService notificationService;
 
     public PaymentGateway getGateway(PaymentProvider provider) {
         switch (provider) {
@@ -102,6 +108,8 @@ public class PaymentController {
 
             for (String orderId : orderIds) {
                 Order order = orderService.completePayment(UUID.fromString(orderId));
+
+                notificationService.notifyNewOrder(order.getVendor(), order);
                 purchasedProductIds.add(order.getItem().getProduct().getId());
             }
 

@@ -95,6 +95,7 @@ public class VendorService {
                 .toList();
 
         return DashboardData.builder()
+                .vendorId(vendor.getId())
                 .vendorName(vendor.getBusinessName())
                 .totalRevenue(totalRevenue)
                 .totalOrders(totalOrders)
