@@ -1,12 +1,15 @@
 package com.graey.Balgs.controller;
 
 import com.graey.Balgs.common.enums.OrderStatus;
+import com.graey.Balgs.common.enums.Role;
 import com.graey.Balgs.common.enums.VendorStatus;
 import com.graey.Balgs.common.messages.VendorMessages;
 import com.graey.Balgs.common.utils.ApiResponse;
 import com.graey.Balgs.dto.order.UpdateOrderStatusRequest;
 import com.graey.Balgs.dto.vendor.*;
 import com.graey.Balgs.model.User;
+import com.graey.Balgs.model.Vendor;
+import com.graey.Balgs.repo.VendorRepo;
 import com.graey.Balgs.service.OrderService;
 import com.graey.Balgs.service.OrderSseService;
 import com.graey.Balgs.service.VendorService;
@@ -33,6 +36,9 @@ public class VendorController {
 
     @Autowired
     private VendorService service;
+
+    @Autowired
+    private VendorRepo vendorRepository;
 
     @Autowired
     private OrderService orderService;

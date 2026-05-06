@@ -27,7 +27,7 @@ public class OrderItem {
     @OneToOne(fetch = FetchType.EAGER)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     private Order order;
 
     @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
