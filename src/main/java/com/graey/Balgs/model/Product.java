@@ -3,6 +3,7 @@ package com.graey.Balgs.model;
 import com.graey.Balgs.common.enums.ProductCondition;
 import com.graey.Balgs.common.enums.RamSize;
 import com.graey.Balgs.common.enums.RomSize;
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -14,10 +15,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "products")
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+public class Product extends BaseEntity {
     private String model;
 
     @Enumerated(value = EnumType.STRING)

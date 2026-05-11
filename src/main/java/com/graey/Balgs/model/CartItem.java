@@ -1,6 +1,7 @@
 package com.graey.Balgs.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,11 +12,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "cart_items")
-public class CartItem {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+public class CartItem extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
     @JsonBackReference

@@ -1,5 +1,6 @@
 package com.graey.Balgs.model;
 
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,12 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeliveryAddress {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
+public class DeliveryAddress extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -42,6 +38,4 @@ public class DeliveryAddress {
 
     @Column(nullable = false)
     private boolean isDefault = false;
-
-    private LocalDateTime createdAt;
 }

@@ -1,6 +1,7 @@
 package com.graey.Balgs.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -14,11 +15,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "user_cart")
-public class Cart {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+public class Cart extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

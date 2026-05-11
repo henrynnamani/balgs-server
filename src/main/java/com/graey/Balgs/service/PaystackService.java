@@ -13,6 +13,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.UUID;
@@ -55,8 +56,35 @@ public class PaystackService implements PaymentGateway {
         }
     }
 
+//    @Override
+//    public Object initiate(String[] orderIds, String email, BigDecimal amount) {
+//        String url = config.getBaseUrl() + "/transaction/initialize";
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_JSON);
+//        headers.setBearerAuth(config.getSecretKey());
+//
+//        String reference = "TXN-" + UUID.randomUUID().toString().replace("-", "");
+//
+//        Map<String, Object> body = Map.of(
+//                "email", email,
+//                "amount", amount.multiply(BigDecimal.valueOf(100)), // kobo
+//                "reference", reference,
+//                "metadata", Map.of("orderIds", orderIds)
+//        );
+//
+//        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+//
+//        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+//
+//        Map<String, Object> data = (Map<String, Object>) response.getBody().get("data");
+//        String authUrl = data.get("authorization_url").toString();
+//
+//        return new PaystackResponse(authUrl);
+//    }
+
     @Override
-    public Object initiate(String[] orderIds, String email, BigDecimal amount) {
+    public Object initiate(String[] entityIds, String email, BigDecimal amount, Map<String, Object> extraMetadata) {
         String url = config.getBaseUrl() + "/transaction/initialize";
 
         HttpHeaders headers = new HttpHeaders();
@@ -65,11 +93,16 @@ public class PaystackService implements PaymentGateway {
 
         String reference = "TXN-" + UUID.randomUUID().toString().replace("-", "");
 
+        // Merge base metadata with extra (type, tradeInId / orderIds)
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("orderIds", entityIds);
+        metadata.putAll(extraMetadata);
+
         Map<String, Object> body = Map.of(
-                "email", email,
-                "amount", amount.multiply(BigDecimal.valueOf(100)), // kobo
+                "email",     email,
+                "amount",    amount.multiply(BigDecimal.valueOf(100)),
                 "reference", reference,
-                "metadata", Map.of("orderIds", orderIds)
+                "metadata",  metadata
         );
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
@@ -99,7 +132,7 @@ public class PaystackService implements PaymentGateway {
         );
 
         Map<String, Object> data = (Map<String, Object>) response.getBody().get("data");
-        String status = data.get("status").toString(); // success, failed, etc.
+        String status = data.get("status").toString();
 
         return "success".equalsIgnoreCase(status);
     }

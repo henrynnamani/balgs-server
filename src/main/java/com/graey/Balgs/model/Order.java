@@ -1,6 +1,7 @@
 package com.graey.Balgs.model;
 
 import com.graey.Balgs.common.enums.OrderStatus;
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import com.graey.Balgs.model.User;
@@ -16,11 +17,7 @@ import java.util.stream.Collectors;
 @Data
 @Entity
 @Table(name = "orders")
-public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+public class Order extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -40,9 +37,6 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 
     @Version
     private Long version;

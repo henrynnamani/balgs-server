@@ -13,6 +13,7 @@ import com.graey.Balgs.repo.OrderRepo;
 import com.graey.Balgs.repo.ProductRepo;
 import com.graey.Balgs.repo.UserRepo;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 @Service
+@Slf4j
 public class OrderService {
     @Autowired
     private OrderRepo repo;
@@ -74,8 +76,6 @@ public class OrderService {
             order.setStatus(OrderStatus.PENDING);
             order.setVendor(item.getProduct().getVendor());
             order.setDeliveryAddress(deliveryAddress);
-
-            item.getProduct().setAvailable(false);
 
             OrderItem orderItem = OrderItem.builder()
                     .order(order)
