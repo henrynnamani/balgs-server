@@ -16,6 +16,7 @@ public class CloudinaryService {
     private Cloudinary cloudinary;
 
     public String uploadFile(MultipartFile file, String type) throws IOException {
+        System.out.println("I am here");
         Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type", type));
 
         return uploadResult.get("url").toString();

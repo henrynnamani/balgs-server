@@ -1,5 +1,6 @@
 package com.graey.Balgs.model;
 
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,11 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "order_items")
-public class OrderItem {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+public class OrderItem extends BaseEntity  {
     @OneToOne(fetch = FetchType.EAGER)
     private Product product;
 

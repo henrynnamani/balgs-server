@@ -1,6 +1,7 @@
 package com.graey.Balgs.model;
 
 import com.graey.Balgs.common.enums.VendorStatus;
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -13,11 +14,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "vendors")
-public class Vendor {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+public class Vendor extends BaseEntity {
     @Column(unique = true, nullable = true)
     private String businessName;
 
@@ -37,9 +34,6 @@ public class Vendor {
     @Column(nullable = false)
     private String phoneNumber;
 
-    @Column(name = "fcm_token")
-    private String fcmToken;
-
     private Integer stocksAvailable = 0;
     private String accountNumber;
     private String bankName;
@@ -52,7 +46,4 @@ public class Vendor {
 
     @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
     private RatingSummary ratingSummary;
-
-    @CreationTimestamp
-    private Instant createdAt;
 }

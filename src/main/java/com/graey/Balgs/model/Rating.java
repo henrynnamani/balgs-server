@@ -1,5 +1,6 @@
 package com.graey.Balgs.model;
 
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -13,11 +14,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "ratings")
-public class Rating {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+public class Rating extends BaseEntity {
     @ManyToOne
     private Vendor vendor;
 
@@ -29,11 +26,4 @@ public class Rating {
     private int rating;
 
     private String review;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
 }

@@ -1,5 +1,6 @@
 package com.graey.Balgs.model;
 
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,11 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "rating_summary")
-public class RatingSummary {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+public class RatingSummary extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     private Vendor vendor;
 

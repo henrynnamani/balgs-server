@@ -2,6 +2,7 @@ package com.graey.Balgs.model;
 
 import com.graey.Balgs.common.enums.PaymentProvider;
 import com.graey.Balgs.common.enums.PaymentStatus;
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,11 +18,7 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-public class Payment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+public class Payment extends BaseEntity {
     private UUID orderId;
 
     private String reference;
@@ -34,7 +31,4 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 }

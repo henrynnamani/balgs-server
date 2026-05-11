@@ -1,5 +1,6 @@
 package com.graey.Balgs.model;
 
+import com.graey.Balgs.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,11 +10,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "order_item_addon")
-public class OrderItemAddOn {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
+public class OrderItemAddOn extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private OrderItem orderItem;
 
