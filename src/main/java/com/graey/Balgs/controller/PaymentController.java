@@ -107,6 +107,7 @@ public class PaymentController {
         // ── Regular order payment ──
         BigDecimal totalAmount = BigDecimal.ZERO;
 
+
         for (String orderId : paymentDto.orderIds()) {
             if (orderService.isOrderPaymentCompleted(UUID.fromString(orderId))) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
