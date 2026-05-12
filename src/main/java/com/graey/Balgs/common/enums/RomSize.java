@@ -8,7 +8,8 @@ public enum RomSize {
     GB32(32),
     GB64(64),
     GB128(128),
-    GB256(256);
+    GB256(256),
+    GB512(512);
 
     private final int size;
 
